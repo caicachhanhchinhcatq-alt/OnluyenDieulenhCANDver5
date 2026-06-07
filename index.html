@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Phần mềm Ôn luyện Điều lệnh CAND - Nguyễn Việt Khánh</title>
     <style>
-    /* ===== BIẾN MÀU SẮC ===== */
+    /* ===== BIẾN MÀU SẮC GỐC ===== */
     :root {
         --primary:    #d32f2f;
         --secondary:  #b71c1c;
@@ -46,6 +46,7 @@
         max-width: 680px;
         border-top: 8px solid var(--primary);
         margin: 10px auto;
+        position: relative;
     }
 
     .hidden { display: none !important; }
@@ -110,341 +111,240 @@
         border: 1px solid #ccc; border-radius: 7px;
         font-size: 15px; font-family: 'Times New Roman', serif;
         transition: border-color 0.2s;
+        background-color: white;
     }
     .input-group input:focus { outline: none; border-color: var(--primary); }
 
+    /* ===== UI TRỰC QUAN MỚI CHO GIAO DIỆN CHỌN CHẾ ĐỘ ===== */
+    .option-grid {
+        display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px;
+    }
+    .radio-card {
+        flex: 1 1 calc(50% - 8px); /* 2 cột */
+        min-width: 120px;
+    }
+    .radio-card-full {
+        flex: 1 1 100%;
+    }
+    .radio-card input[type="radio"], .radio-card-full input[type="radio"] {
+        display: none;
+    }
+    .radio-label {
+        display: block; width: 100%; height: 100%;
+        padding: 10px 12px;
+        background: #fff; border: 1px solid #ccc; border-radius: 6px;
+        cursor: pointer; font-size: 14px; text-align: left;
+        transition: all 0.2s; font-family: 'Times New Roman', serif;
+    }
+    .radio-label:hover { background: #fdf2f2; border-color: var(--primary); }
+    input[type="radio"]:checked + .radio-label {
+        background: var(--gold-bg);
+        border: 2px solid var(--primary);
+        color: var(--secondary);
+    }
+    .section-title {
+        font-weight: bold; color: #2c3e50; font-size: 16px; margin: 18px 0 8px;
+        border-bottom: 1px solid #eee; padding-bottom: 5px;
+    }
+
+    /* ===== KỶ LỤC BANNER ===== */
+    .record-banner {
+        background: linear-gradient(135deg, #fff8e1, #fffde7);
+        border: 2px dashed var(--gold); border-radius: 10px;
+        padding: 14px; margin-bottom: 22px; text-align: center;
+        box-shadow: 0 4px 12px rgba(249,168,37,0.15);
+    }
+    .record-title {
+        font-size: 16px; font-weight: bold; color: #b71c1c;
+        margin-bottom: 4px; display: flex; align-items: center; justify-content: center; gap: 6px;
+    }
+
     /* ===== ANIMATIONS ===== */
-    #login-screen, #mode-screen, #quiz-screen, #result-screen, #review-screen {
-        animation: fadeIn 0.35s ease-in-out;
+    #login-screen, #mode-screen, #quiz-screen, #result-screen, #review-screen, #exam-screen, #tools-screen {
+        animation: fadeIn 0.3s ease-in-out;
     }
     @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(7px); }
+        from { opacity: 0; transform: translateY(5px); }
         to   { opacity: 1; transform: translateY(0); }
     }
 
     /* ===== COPYRIGHT ===== */
     .copyright-box {
-        margin-top: 24px;
-        padding: 10px 14px;
-        border-top: 1px dashed #ccc;
-        font-size: 13px; color: #555;
-        line-height: 1.7; text-align: center;
+        margin-top: 24px; padding: 10px 14px; border-top: 1px dashed #ccc;
+        font-size: 13px; color: #555; line-height: 1.7; text-align: center;
     }
     .copyright-title { font-weight: bold; color: var(--primary); }
 
-    /* ================================================================
-       MÀN HÌNH 1: ĐĂNG NHẬP
-    ================================================================ */
+    /* ===== MÀN HÌNH ĐĂNG NHẬP & LỊCH SỬ ===== */
     .login-form-wrap { max-width: 430px; margin: 0 auto; }
     .field-note { font-size: 12px; color: #999; margin-top: 4px; font-style: italic; }
-
-    /* Lịch sử */
     .history-wrap { margin-top: 24px; }
-    .history-header {
-        display: flex; justify-content: space-between;
-        align-items: center;
-        margin-bottom: 9px;
-    }
+    .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 9px; }
     .history-title { font-weight: bold; color: var(--primary); font-size: 15px; }
     .history-scroll { overflow-x: auto; }
     .history-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 440px; }
-    .history-table th {
-        background: var(--primary); color: white;
-        padding: 7px 9px; text-align: center; font-size: 12px;
-    }
-    .history-table td {
-        padding: 6px 9px;
-        text-align: center;
-        border-bottom: 1px solid #f0f0f0;
-    }
+    .history-table th { background: var(--primary); color: white; padding: 7px 9px; text-align: center; font-size: 12px; }
+    .history-table td { padding: 6px 9px; text-align: center; border-bottom: 1px solid #f0f0f0; }
     .history-table tr:hover td { background: #fafafa; }
     .score-good { color: var(--correct); font-weight: bold; }
     .score-bad  { color: var(--wrong); font-weight: bold; }
-    .no-history {
-        color: #aaa; font-style: italic;
-        text-align: center; padding: 16px; font-size: 14px;
-    }
+    .no-history { color: #aaa; font-style: italic; text-align: center; padding: 16px; font-size: 14px; }
 
-    /* ================================================================
-       MÀN HÌNH 2: CHỌN SỐ CÂU THI
-    ================================================================ */
-    .welcome-msg { text-align: center; color: #555; margin-bottom: 20px; font-size: 15px; }
-    .welcome-name { color: var(--primary); font-weight: bold; font-size: 18px; }
-
-    .bookmark-notice {
-        background: var(--gold-bg); border: 1px solid rgba(249,168,37,0.45);
-        border-radius: 8px; padding: 10px 15px;
-        font-size: 13px; color: #5a4500;
-        text-align: center; margin-bottom: 18px;
-    }
-
-    .mode-grid { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin: 6px 0 20px; }
-    .mode-card {
-        background: #fff; border: 2px solid #e0e0e0;
-        border-radius: 12px; padding: 22px 16px;
-        text-align: center; cursor: pointer;
-        flex: 1; min-width: 140px; max-width: 200px;
-        transition: all 0.2s ease;
-        position: relative;
-    }
-    .mode-card:hover {
-        border-color: var(--primary);
-        transform: translateY(-3px);
-        box-shadow: 0 8px 18px rgba(0,0,0,0.13);
-    }
-    .mode-card.recommended { border-color: var(--primary); }
-    .mode-badge {
-        position: absolute; top: -11px; left: 50%;
-        transform: translateX(-50%);
-        background: var(--primary); color: white;
-        font-size: 11px; padding: 2px 11px;
-        border-radius: 10px; white-space: nowrap;
-    }
-    .mode-icon  { font-size: 28px; margin-bottom: 6px; }
-    .mode-num   { font-size: 28px; font-weight: bold; color: var(--primary); }
-    .mode-unit  { font-size: 14px; color: #666; }
-    .mode-time  { font-size: 13px; color: #888; margin-top: 5px; }
-    .mode-desc  { font-size: 12px; color: #aaa; margin-top: 4px; }
-
-    /* ================================================================
-       MÀN HÌNH 3: LÀM BÀI TRẮC NGHIỆM
-    ================================================================ */
+    /* ===== GIAO DIỆN MÀN HÌNH LÀM BÀI ===== */
     .timer-audio-row {
-        display: flex;
-        justify-content: space-between; align-items: center;
-        margin-bottom: 12px;
-        background: rgba(245,245,245,0.85);
+        display: flex; justify-content: space-between; align-items: center;
+        margin-bottom: 12px; background: rgba(245,245,245,0.85);
         padding: 7px 14px; border-radius: 9px;
     }
-    #timer { font-weight: bold; color: var(--primary); font-size: 17px; }
+    #timer, .timer-text { font-weight: bold; color: var(--primary); font-size: 17px; }
     #audio-toggle-btn {
         margin: 0 !important; padding: 6px 14px !important;
-        font-size: 13px !important; background-color: #616161;
-        border-radius: 20px !important;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.12);
+        font-size: 13px !important; background-color: #616161; border-radius: 20px !important;
     }
 
-    /* Thanh tiến độ */
     .progress-container {
-        width: 100%;
-        background: #e0e0e0; border-radius: 12px;
-        margin-bottom: 10px; overflow: hidden;
-        position: relative; height: 36px;
-        box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
+        width: 100%; background: #e0e0e0; border-radius: 12px; margin-bottom: 10px; overflow: hidden;
+        position: relative; height: 36px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
     }
     #progress {
-        height: 100%; width: 0%;
-        background: linear-gradient(90deg, var(--primary), var(--secondary));
+        height: 100%; width: 0%; background: linear-gradient(90deg, var(--primary), var(--secondary));
         transition: width 0.4s ease-in-out;
     }
     .progress-text-overlay {
-        position: absolute;
-        top: 0; left: 0; height: 100%;
-        display: flex; flex-direction: column;
-        align-items: center; justify-content: center;
-        color: white; font-size: 11px; font-weight: bold;
+        position: absolute; top: 0; left: 0; height: 100%; width: 100%;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        color: white; font-size: 12px; font-weight: bold;
         line-height: 1.2; text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
-        white-space: nowrap; transition: left 0.4s ease-in-out;
     }
 
-    /* Nút đánh dấu câu khó */
     .bookmark-row { display: flex; justify-content: flex-end; margin: 4px 0 8px; }
     .btn-bookmark {
-        background: transparent;
-        border: 1px solid #e0e0e0;
-        border-radius: 20px; padding: 5px 14px;
-        font-size: 13px; cursor: pointer;
-        font-family: 'Times New Roman', serif;
-        color: #999;
-        transition: all 0.2s; margin: 0;
+        background: transparent; border: 1px solid #e0e0e0; border-radius: 20px; padding: 5px 14px;
+        font-size: 13px; cursor: pointer; font-family: 'Times New Roman', serif; color: #999; transition: all 0.2s; margin: 0;
     }
     .btn-bookmark:hover { background: var(--gold-bg); border-color: var(--gold); color: #7a5c00; }
-    .btn-bookmark.bookmarked {
-        background: var(--gold-bg); border-color: var(--gold);
-        color: #6b4f00; font-weight: bold;
-    }
+    .btn-bookmark.bookmarked { background: var(--gold-bg); border-color: var(--gold); color: #6b4f00; font-weight: bold; }
 
-    /* Câu hỏi */
     #question-text {
-        font-weight: bold; text-align: left;
-        font-size: 20px; line-height: 1.55;
-        margin-bottom: 14px;
-        background: rgba(255,248,248,0.9);
-        padding: 14px 16px;
-        border-left: 4px solid var(--primary);
-        border-radius: 4px;
+        font-weight: bold; text-align: left; font-size: 20px; line-height: 1.55; margin-bottom: 14px;
+        background: rgba(255,248,248,0.9); padding: 14px 16px; border-left: 4px solid var(--primary); border-radius: 4px;
     }
 
-    /* Các đáp án */
     .option-btn {
-        display: flex; align-items: center; width: 100%;
-        text-align: left; background: rgba(236,239,241,0.9);
-        color: #333; margin: 10px 0; padding: 13px 16px;
-        border: 2px solid transparent; border-radius: 8px;
-        font-size: 20px; cursor: pointer;
-        font-family: 'Times New Roman', serif; font-weight: normal;
-        transition: background 0.15s ease, border-color 0.15s ease;
-        will-change: background, border-color;
+        display: flex; align-items: center; width: 100%; text-align: left;
+        background: rgba(236,239,241,0.9); color: #333; margin: 10px 0; padding: 13px 16px;
+        border: 2px solid transparent; border-radius: 8px; font-size: 20px; cursor: pointer;
+        font-family: 'Times New Roman', serif; transition: all 0.15s ease;
+        font-weight: normal;
     }
     .option-btn:hover  { background: #cfd8dc; }
     .option-btn:active { transform: scale(0.99); }
-
     .radio-circle {
-        min-width: 18px; height: 18px;
-        border: 2px solid #78909c; border-radius: 50%;
-        margin-right: 13px; display: inline-block;
-        position: relative; background: white; flex-shrink: 0;
-        transition: border-color 0.15s; box-sizing: border-box;
+        min-width: 18px; height: 18px; border: 2px solid #78909c; border-radius: 50%;
+        margin-right: 13px; display: inline-block; position: relative; background: white; flex-shrink: 0;
     }
-    .option-btn.selected .radio-circle::after,
-    .option-btn.reveal-correct .radio-circle::after,
-    .option-btn.reveal-wrong  .radio-circle::after {
-        content: "";
-        width: 10px; height: 10px; border-radius: 50%;
-        position: absolute; top: 50%; left: 50%;
-        transform: translate(-50%, -50%);
+    .option-btn.selected .radio-circle::after, .option-btn.reveal-correct .radio-circle::after, .option-btn.reveal-wrong  .radio-circle::after {
+        content: ""; width: 10px; height: 10px; border-radius: 50%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
     }
-    .option-btn.selected {
-        border-color: var(--primary); background: #fff9c4;
-        animation: lightPulse 0.15s ease-out;
-    }
+    .option-btn.selected { border-color: var(--primary); background: #fff9c4; }
     .option-btn.selected .radio-circle { border-color: var(--primary); }
     .option-btn.selected .radio-circle::after { background: var(--primary); }
 
-    .option-btn.reveal-correct {
-        background: var(--correct-bg) !important;
-        border-color: var(--correct) !important;
-        color: var(--correct) !important; font-weight: bold !important;
-    }
+    .option-btn.reveal-correct { background: var(--correct-bg) !important; border-color: var(--correct) !important; color: var(--correct) !important; font-weight: normal !important; }
     .option-btn.reveal-correct .radio-circle { border-color: var(--correct) !important; }
     .option-btn.reveal-correct .radio-circle::after { background: var(--correct); }
 
-    .option-btn.reveal-wrong {
-        background: var(--wrong-bg) !important;
-        border-color: var(--wrong) !important;
-        color: var(--wrong) !important;
-    }
+    .option-btn.reveal-wrong { background: var(--wrong-bg) !important; border-color: var(--wrong) !important; color: var(--wrong) !important; }
     .option-btn.reveal-wrong .radio-circle { border-color: var(--wrong) !important; }
     .option-btn.reveal-wrong .radio-circle::after { background: var(--wrong); }
 
-    @keyframes lightPulse { 0% { opacity: 0.85; } 100% { opacity: 1; } }
-
-    /* Phản hồi đúng/sai */
     .result-msg {
-        font-weight: bold; margin: 14px 0;
-        padding: 14px 16px; border-radius: 6px;
-        text-align: left; font-size: 16px;
-        line-height: 1.5; white-space: pre-line;
+        font-weight: normal; margin: 14px 0; padding: 14px 16px; border-radius: 6px;
+        text-align: left; font-size: 14px; line-height: 1.5; white-space: pre-line;
     }
     .correct-banner { color: var(--correct); background: var(--correct-bg); border-left: 5px solid #4caf50; }
     .wrong-banner   { color: var(--wrong);   background: var(--wrong-bg);   border-left: 5px solid #f44336; }
 
-    /* ================================================================
-       MÀN HÌNH 4: KẾT QUẢ CHUNG CUỘC
-    ================================================================ */
-    .result-user-tag {
-        background: rgba(211,47,47,0.07);
-        border: 1px solid rgba(211,47,47,0.15);
-        border-radius: 8px; padding: 10px 16px;
-        margin-bottom: 14px; font-size: 15px; text-align: center;
+    /* ===== MÀN THI THẬT (EXAM MODE) ===== */
+    .exam-q-box {
+        background: #fff; border: 1px solid #e0e0e0; border-radius: 8px;
+        padding: 15px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
     }
-    .result-actions {
-        display: flex; gap: 12px;
-        flex-wrap: wrap; justify-content: center;
-        margin-top: 16px;
+    .exam-q-title {
+        font-weight: bold; font-size: 18px; margin-bottom: 12px; color: #333; line-height: 1.5;
     }
+    .exam-opt-label {
+        display: flex; align-items: flex-start; padding: 10px 12px;
+        margin-bottom: 8px; background: #f5f5f5; border: 1px solid transparent;
+        border-radius: 6px; cursor: pointer; font-size: 17px; transition: all 0.2s;
+        font-weight: normal;
+    }
+    .exam-opt-label:hover { background: #eeeeee; }
+    .exam-opt-label input { margin-top: 4px; margin-right: 12px; cursor: pointer; accent-color: var(--primary); }
+    .exam-opt-label.selected-exam { background: #fff9c4; border-color: var(--gold); }
+
+    /* ===== MÀN KẾT QUẢ & CÂU SAI ===== */
+    .result-user-tag { background: rgba(211,47,47,0.07); border: 1px solid rgba(211,47,47,0.15); border-radius: 8px; padding: 10px 16px; margin-bottom: 14px; font-size: 15px; text-align: center; }
+    .result-actions { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-top: 16px; }
     .result-actions button { margin-top: 0; }
 
-    /* ================================================================
-       MÀN HÌNH 5: XEM LẠI DANH SÁCH CÂU SAI
-    ================================================================ */
-    .review-header {
-        display: flex; align-items: center;
-        gap: 12px; margin-bottom: 18px;
-    }
-    .btn-back {
-        background: transparent; border: 1px solid #ccc;
-        color: #555; border-radius: 6px;
-        padding: 7px 14px; font-size: 14px;
-        cursor: pointer; font-family: 'Times New Roman', serif; margin: 0;
-    }
-    .btn-back:hover { background: #f0f0f0; }
-
-    .review-card {
-        background: rgba(250,250,250,0.95);
-        border: 1px solid #e8e8e8; border-radius: 10px;
-        padding: 16px 18px; margin-bottom: 16px;
-    }
-    .review-q-num {
-        font-size: 11px; color: #bbb; font-weight: bold;
-        text-transform: uppercase; margin-bottom: 7px; letter-spacing: 0.5px;
-    }
-    .review-q-text {
-        font-size: 17px; font-weight: bold; line-height: 1.55;
-        color: #212121; margin-bottom: 13px;
-        border-left: 3px solid var(--wrong); padding-left: 11px;
-    }
-    .review-answer {
-        display: flex; align-items: flex-start; gap: 8px; padding: 9px 13px;
-        border-radius: 7px; margin-bottom: 8px; font-size: 16px; line-height: 1.4;
-    }
+    .review-header { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
+    .review-card { background: rgba(250,250,250,0.95); border: 1px solid #e8e8e8; border-radius: 10px; padding: 16px 18px; margin-bottom: 16px; }
+    .review-q-num { font-size: 11px; color: #bbb; font-weight: bold; text-transform: uppercase; margin-bottom: 7px; }
+    .review-q-text { font-size: 17px; font-weight: bold; line-height: 1.55; color: #212121; margin-bottom: 13px; border-left: 3px solid var(--wrong); padding-left: 11px; }
+    .review-answer { display: flex; align-items: flex-start; gap: 8px; padding: 9px 13px; border-radius: 7px; margin-bottom: 8px; font-size: 16px; line-height: 1.4; }
     .review-answer.wrong-ans { background: var(--wrong-bg); color: var(--wrong); }
     .review-answer.right-ans { background: var(--correct-bg); color: var(--correct); font-weight: bold; }
-    .review-answer-label {
-        font-size: 11px; font-weight: bold; flex-shrink: 0;
-        min-width: 56px; padding-top: 2px; text-transform: uppercase;
-    }
-    .review-bookmark-row { display: flex; justify-content: flex-end; margin-top: 10px; }
+    .review-answer-label { font-size: 11px; font-weight: bold; flex-shrink: 0; min-width: 56px; padding-top: 2px; text-transform: uppercase; }
 
-    /* ===== RESPONSIVE TƯƠNG THÍCH ĐIỆN THOẠI ===== */
+    /* ===== KHU VỰC TIỆN ÍCH (TOOLS SCREEN) ===== */
+    #tools-content { background: #fff; padding: 20px; border-radius: 8px; border: 1px solid #ccc; max-height: 70vh; overflow-y: auto; text-align: left; }
+    .tool-btn-group { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 15px; justify-content: center; }
+    .search-bar { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid var(--primary); border-radius: 5px; font-size: 15px; }
+    .bank-q-item { border-bottom: 1px dashed #ccc; padding: 12px 0; }
+    .bank-q-item:last-child { border-bottom: none; }
+    .tips-content h3 { color: var(--primary); font-size: 18px; margin-bottom: 10px; }
+    .tips-content p, .tips-content ul { font-size: 15px; line-height: 1.6; color: #333; }
+
     @media (max-width: 500px) {
         body { padding: 8px; }
         .container { padding: 15px; border-radius: 8px; }
         h1 { font-size: 18px; }
-        #question-text { font-size: 16px; padding: 11px; }
-        .option-btn { font-size: 15px; padding: 11px 13px; margin: 8px 0; }
-        .mode-grid { gap: 10px; }
-        .mode-card { min-width: 110px; padding: 16px 10px; }
-        .mode-num { font-size: 24px; }
+        #question-text, .exam-q-title { font-size: 16px; padding: 11px; }
+        .option-btn, .exam-opt-label { font-size: 15px; }
         .review-q-text { font-size: 15px; }
         .review-answer { font-size: 14px; }
     }
     </style>
-
     <script src="questions.js"></script>
 </head>
 <body>
 <div class="container">
 
     <div id="login-screen">
+        <div id="top-record-banner" class="record-banner" style="display:none">
+            <div class="record-title">🏆 KỶ LỤC HỆ THỐNG GẦN ĐÂY</div>
+            <div id="top-record-user" style="font-size:14px; color:#555; font-weight:bold; margin-bottom:3px">---</div>
+            <div id="top-record-score" style="font-weight:bold; color:var(--primary); font-size:15px">---</div>
+        </div>
+
         <h1>Phần mềm ôn luyện<br>Điều lệnh Công an nhân dân</h1>
-        <p class="subtitle">Hệ thống trắc nghiệm nội bộ phục vụ công tác huấn luyện</p>
-
+        <p class="subtitle">Hệ thống trắc nghiệm nội bộ phục vụ công tác học tập</p>
         <div class="login-form-wrap">
-            <div style="margin-bottom: 18px; background: rgba(211, 47, 47, 0.05); padding: 12px; border-left: 4px solid var(--primary); border-radius: 4px; text-align: left;">
-                <small style="color: var(--secondary); font-weight: bold; display: block; margin-bottom: 3px;">📌 HƯỚNG DẪN NHẬP THÔNG TIN:</small>
-                <small style="color: #555; font-style: italic; line-height: 1.4; display: block; font-size: 13px;">
-                    Đồng chí vui lòng điền chính xác Họ tên và Đơn vị công tác để hệ thống ghi nhận kết quả vào bảng lịch sử ôn luyện phía dưới.
-                </small>
-            </div>
-
             <div class="input-group">
                 <label for="nickname">Họ tên / Nickname: <span style="color:var(--primary)">*</span></label>
                 <input type="text" id="nickname" placeholder="Vd: Nguyễn Văn A" maxlength="40" autocomplete="off">
                 <div class="field-note">Tên hiển thị trên bảng xếp hạng và lịch sử.</div>
             </div>
-            
             <div class="input-group">
                 <label for="donvi">Đơn vị công tác: <span style="color:var(--primary)">*</span></label>
-                <input type="text" id="donvi" placeholder="Vd: PC01, Phòng Tham mưu..." maxlength="40" autocomplete="off">
+                <input type="text" id="donvi" placeholder="Vd: PV01, CAX..." maxlength="40" autocomplete="off">
                 <div class="field-note">Phục vụ thống kê và xếp hạng theo đơn vị.</div>
             </div>
-
             <div style="text-align:center">
-                <button onclick="login()" style="width:100%;margin-top:18px;padding:13px;font-size:17px;letter-spacing:1px">VÀO HỆ THỐNG ÔN LUYỆN</button>
+                <button onclick="login()" style="width:100%;margin-top:18px;padding:13px;font-size:17px;letter-spacing:1px">VÀO HỆ THỐNG</button>
             </div>
         </div>
-
         <div class="history-wrap">
             <div class="history-header">
                 <span class="history-title">📊 Lịch sử ôn tập gần đây</span>
@@ -457,814 +357,885 @@
     </div>
 
     <div id="mode-screen" class="hidden">
-        <h1>Chọn chế độ ôn luyện</h1>
-        <div class="welcome-msg">
-            Chào đồng chí: <span id="welcome-name" class="welcome-name">---</span><br>
-            Đơn vị công tác: <b id="welcome-donvi" style="color:#333;">---</b>
+        <h1>Cấu hình chế độ làm bài</h1>
+        <div class="welcome-msg" style="margin-bottom:10px;">
+            Đồng chí: <span id="welcome-name" class="welcome-name">---</span><br>
+            Đơn vị: <b id="welcome-donvi" style="color:#333;">---</b>
+        </div>
+        
+        <div class="tool-btn-group">
+            <button class="btn-outline btn-sm" onclick="openTools('tips')" style="margin:0; padding:6px 12px;">💡 Mẹo thi hiệu quả</button>
+            <button class="btn-outline btn-sm" onclick="openTools('bank')" style="margin:0; padding:6px 12px;">📚 Ngân hàng câu hỏi</button>
+            <button class="btn-outline btn-sm" onclick="openTools('search')" style="margin:0; padding:6px 12px;">🔍 Tìm kiếm</button>
         </div>
 
-        <div id="bookmark-notice" class="bookmark-notice hidden"></div>
-
-        <div class="mode-grid">
-            <div class="mode-card" onclick="selectMode(10)">
-                <div class="mode-icon">⚡</div>
-                <div class="mode-num">10</div>
-                <div class="mode-unit">câu hỏi</div>
-                <div class="mode-time">⏱ 10 phút</div>
-                <div class="mode-desc">Kiểm tra nhanh</div>
+        <div class="section-title">Chế độ làm bài:</div>
+        <div class="option-grid">
+            <div class="radio-card">
+                <input type="radio" id="m_practice" name="quiz_mode" value="practice" checked>
+                <label for="m_practice" class="radio-label">🎯 Ôn luyện (Biết kết quả ngay sau mỗi câu)</label>
             </div>
-
-            <div class="mode-card recommended" onclick="selectMode(20)">
-                <div class="mode-badge">Khuyên dùng</div>
-                <div class="mode-icon">📝</div>
-                <div class="mode-num">20</div>
-                <div class="mode-unit">câu hỏi</div>
-                <div class="mode-time">⏱ 20 phút</div>
-                <div class="mode-desc">Ôn tập chuyên sâu</div>
-            </div>
-
-            <div class="mode-card" onclick="selectMode(30)">
-                <div class="mode-icon">🏆</div>
-                <div class="mode-num">30</div>
-                <div class="mode-unit">câu hỏi</div>
-                <div class="mode-time">⏱ 30 phút</div>
-                <div class="mode-desc">Thi thử toàn diện</div>
+            <div class="radio-card">
+                <input type="radio" id="m_exam" name="quiz_mode" value="exam">
+                <label for="m_exam" class="radio-label">📝 Thi thật (Đếm ngược, nộp bài mới biết kết quả)</label>
             </div>
         </div>
 
-        <div style="text-align:center">
-            <button class="btn-outline" onclick="logout()" style="margin-top:4px;font-size:13px;padding:8px 18px">← Đăng xuất</button>
+        <div class="section-title">Chuyên đề:</div>
+        <div class="option-grid">
+            <div class="radio-card"><input type="radio" id="t_all" name="topic" value="all" checked><label for="t_all" class="radio-label">Ôn tất cả</label></div>
+            <div class="radio-card"><input type="radio" id="t_noivu" name="topic" value="noivu"><label for="t_noivu" class="radio-label">Điều lệnh nội vụ</label></div>
+            <div class="radio-card"><input type="radio" id="t_doingu" name="topic" value="doingu"><label for="t_doingu" class="radio-label">Điều lệnh đội ngũ</label></div>
+            <div class="radio-card"><input type="radio" id="t_nghile" name="topic" value="nghile"><label for="t_nghile" class="radio-label">Nghi lễ CAND</label></div>
+            <div class="radio-card-full"><input type="radio" id="t_xuly" name="topic" value="xuly"><label for="t_xuly" class="radio-label">Xử lý vi phạm Điều lệnh CAND</label></div>
+            <div class="radio-card-full"><input type="radio" id="t_diff" name="topic" value="difficult"><label for="t_diff" class="radio-label" style="color:var(--secondary)">⭐ Ôn luyện những câu khó (Đã đánh dấu)</label></div>
+        </div>
+
+        <div class="section-title">Số lượng câu:</div>
+        <div class="option-grid">
+            <div class="radio-card"><input type="radio" id="q_10" name="qcount" value="10" checked><label for="q_10" class="radio-label">10 câu</label></div>
+            <div class="radio-card"><input type="radio" id="q_15" name="qcount" value="15"><label for="q_15" class="radio-label">15 câu</label></div>
+            <div class="radio-card"><input type="radio" id="q_20" name="qcount" value="20"><label for="q_20" class="radio-label">20 câu</label></div>
+            <div class="radio-card"><input type="radio" id="q_30" name="qcount" value="30"><label for="q_30" class="radio-label">30 câu</label></div>
+            <div class="radio-card-full"><input type="radio" id="q_all" name="qcount" value="max_topic"><label for="q_all" class="radio-label">Toàn bộ câu hỏi chuyên đề</label></div>
+        </div>
+
+        <div class="section-title">Đảo đáp án:</div>
+        <div class="option-grid">
+            <div class="radio-card"><input type="radio" id="s_on" name="shuffle" value="on" checked><label for="s_on" class="radio-label">Bật</label></div>
+            <div class="radio-card"><input type="radio" id="s_off" name="shuffle" value="off"><label for="s_off" class="radio-label">Tắt</label></div>
+        </div>
+
+        <div style="text-align: center; margin-top:20px;">
+            <button onclick="startQuiz()" style="padding: 14px 45px; font-size: 18px; width: 100%;">VÀO LÀM BÀI MỚI</button>
+            <button onclick="logout()" class="btn-outline" style="width: 100%; margin-top: 10px;">Thoát tài khoản</button>
         </div>
     </div>
 
-    <div id="quiz-screen" class="hidden">
-        
-        <div id="top-rank-banner" style="display: none; background: linear-gradient(135deg, rgba(211,47,47,0.08) 0%, rgba(211,47,47,0.02) 100%); border: 1px solid rgba(211,47,47,0.2); border-left: 5px solid var(--primary, #d32f2f); border-radius: 8px; padding: 12px 15px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
-            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <span style="font-size: 24px; animation: pulse 2s infinite;">👑</span>
-                    <div>
-                        <div style="font-size: 11px; font-weight: bold; color: var(--primary, #d32f2f); text-transform: uppercase; letter-spacing: 0.5px;">KỶ LỤC HỆ THỐNG (TOP 1)</div>
-                        <div id="top-rank-user" style="font-size: 15px; font-weight: 700; color: #2c3e50;">Chưa có dữ liệu</div>
-                    </div>
-                </div>
-                <div style="background: var(--primary, #d32f2f); color: #fff; padding: 4px 10px; border-radius: 20px; font-size: 13px; font-weight: bold; box-shadow: 0 2px 4px rgba(211,47,47,0.2);" id="top-rank-score">
-                    0/0 câu
-                </div>
+    <div id="tools-screen" class="hidden" style="width: 100%;">
+        <div class="review-header" style="justify-content:space-between">
+            <h2 id="tools-title" style="margin:0; text-align:left;">Tiện ích</h2>
+            <button class="btn-sm" style="background:#c62828; color:white; border:none;" onclick="closeTools()">Đóng</button>
+        </div>
+        <div id="tools-content"></div>
+    </div>
+
+    <div id="quiz-screen" class="hidden" style="width: 100%;">
+        <div class="timer-audio-row">
+            <span class="timer-text" id="timer_practice">⏱ 00:00</span>
+            <div style="display:flex; gap:8px;">
+                <button class="btn-sm" style="background:#c62828; color:white; border:none;" onclick="confirmExit()">Thoát</button>
+                <button id="audio-toggle-btn" class="btn-sm" onclick="toggleAudio()">🔊 BẬT</button>
             </div>
         </div>
-
-        <div class="timer-audio-row">
-            <div id="timer">Thời gian: --:--</div>
-            <button id="audio-toggle-btn" onclick="toggleAudio()">🔊 ÂM THANH: BẬT</button>
-        </div>
-
         <div class="progress-container">
             <div id="progress"></div>
-            <div id="progress-text" class="progress-text-overlay">CÂU 1/10<br>(10%)</div>
+            <div class="progress-text-overlay" id="progress-text">Câu hỏi: 1/10 (0%)</div>
         </div>
-
         <div class="bookmark-row">
-            <button id="bookmark-btn" class="btn-bookmark" onclick="toggleBookmarkInQuiz()">☆ Đánh dấu câu khó</button>
+            <button id="bookmark-btn" class="btn-bookmark" onclick="toggleBookmarkCurrent()">★ Đánh dấu câu khó</button>
         </div>
-
-        <div id="question-text">Đang tải câu hỏi...</div>
+        <div id="question-text">Đang tải...</div>
         <div id="options-container"></div>
-
         <div id="feedback-container"></div>
-
-        <div style="text-align: right; margin-top: 15px;">
-            <button id="submit-btn" onclick="submitAnswer()">CHỐT ĐÁP ÁN</button>
-            <button id="next-btn" class="hidden" onclick="nextQuestion()">CÂU TIẾP THEO →</button>
+        <div style="text-align:right; margin-top: 12px;">
+            <button id="next-btn" onclick="confirmOrNext()">XÁC NHẬN ĐÁP ÁN ✔</button>
         </div>
     </div>
 
-    <div id="result-screen" class="hidden">
-        <h2>KẾT QUẢ ÔN LUYỆN ĐIỀU LỆNH</h2>
+    <div id="exam-screen" class="hidden" style="width: 100%;">
+        <div class="timer-audio-row" style="position:sticky; top:0; z-index:10; box-shadow:0 2px 5px rgba(0,0,0,0.1)">
+            <span class="timer-text" id="timer_exam">⏱ 00:00</span>
+            <div style="display:flex; gap:8px;">
+                <button class="btn-sm" style="background:#c62828; color:white; border:none;" onclick="confirmExit()">Thoát</button>
+            </div>
+        </div>
         
+        <div id="exam-questions-wrapper" style="margin-top:15px;"></div>
+        
+        <button onclick="manualSubmitExam()" style="width:100%; padding:15px; font-size:18px; margin-top:20px;">NỘP BÀI THI KẾT THÚC</button>
+    </div>
+
+    <div id="result-screen" class="hidden" style="width: 100%;">
+        <h2>KẾT QUẢ LÀM BÀI</h2>
         <div class="result-user-tag">
             Đồng chí: <b id="result-name" style="color:var(--primary)">---</b> | Đơn vị: <b id="result-donvi">---</b>
         </div>
-
-        <div id="score-summary" style="text-align: left; padding: 15px 18px; background: #fafafa; border-radius: 8px; line-height: 1.8; font-size: 16px; border: 1px solid #eee;">
-            </div>
-
-        <div id="advice" style="margin-top:16px; padding:15px; border-radius:6px; font-weight:bold; font-size:15px; text-align:center; line-height:1.5;">
-            </div>
+        
+        <div style="background: #fafafa; border:1px solid #ddd; border-radius:8px; padding:20px; text-align:center; margin-bottom:18px;">
+            <div style="font-size: 48px; font-weight: bold; color: var(--primary);" id="result-score">0 / 0</div>
+            <div style="font-size: 16px; color:#555; margin: 4px 0 12px;" id="result-pct">Chính xác: 0%</div>
+            <div style="font-size: 15px; font-weight: bold; color: #333;" id="result-time">⏱ Tổng thời gian: 00 phút 00 giây</div>
+            <div style="font-size: 14px; margin-top: 10px; font-weight: bold;" id="result-rank-msg"></div>
+        </div>
 
         <div class="result-actions">
-            <button onclick="restartQuiz()" style="background:#2e7d32">🔄 THI LẠI LƯỢT MỚI</button>
-            <button id="review-err-btn" onclick="showReviewScreen()" style="background:#0288d1">🔍 XEM LẠI CÂU SAI</button>
-            <button onclick="showModeScreen()" style="background:#616161">📋 ĐỔI CHẾ ĐỘ THI</button>
+            <button onclick="backToMode()" style="background:#4bc0c0">➜ VỀ TRANG CHỦ</button>
+            <button id="retry-same-btn" onclick="retryQuizSameConfig()" style="background:#ff9f40">THI LẠI LƯỢT NỮA 🔄</button>
+            <button id="review-wrong-btn" onclick="openReview()" style="background:var(--primary)">XEM CÂU SAI (0)</button>
         </div>
     </div>
 
-    <div id="review-screen" class="hidden">
+    <div id="review-screen" class="hidden" style="width: 100%;">
         <div class="review-header">
-            <button class="btn-back" onclick="backToResult()">← Quay lại</button>
-            <h2 style="margin:0;font-size:18px">Xem lại câu trả lời sai</h2>
+            <button class="btn-back" onclick="closeReview()">⬅ QUAY LẠI KẾT QUẢ</button>
+            <h2 style="margin:0; font-size:18px; text-align:left;">Danh sách câu chưa đúng</h2>
         </div>
-
-        <div id="review-container"></div>
-
-        <div style="text-align:center;margin-top:6px">
-            <button onclick="restartQuiz()">🔄 THI LẠI LƯỢT MỚI</button>
-        </div>
+        <div id="review-list"></div>
     </div>
 
-    <!-- ================================================================
-         KHỐI THÔNG TIN BẢN QUYỀN TÁC GIẢ (ĐÃ CẬP NHẬT)
-    ================================================================ -->
     <div class="copyright-box">
-        <div style="color: var(--primary); font-weight: bold;">Copyright © 2026 Nguyễn Việt Khánh</div>
-        <div style="color: var(--primary); font-weight: bold; margin-bottom: 4px;">Phòng Tham mưu - Công an tỉnh Tuyên Quang</div>
-        <div style="margin-bottom: 4px;">All rights reserved.</div>
-        <div>• Điện thoại: 0328.833.388</div>
-        <div>• Email: caicachhanhchinhcatq@gmail.com</div>
+       <span class="copyright-title">PHẦN MỀM ÔN LUYỆN ĐIỀU LỆNH CÔNG AN NHÂN DÂN © 2026</span><br>
+       Tác giả: <span style="font-weight:bold; color:#333">Nguyễn Việt Khánh</span> | Phiên bản hệ thống: <span style="font-weight:bold; color:var(--primary)">Version 7.0 Pro</span><br>
+       Hỗ trợ: <span style="font-weight:bold;">0328.833.388 (Zalo)</span> | <span style="color:#0066cc;">caicachhanhchinhcatq@gmail.com</span><br>       
     </div>
 
 </div>
 
-<audio id="sound-correct" src="sound-Dung.mp3" preload="auto"></audio>
-<audio id="sound-wrong" src="sound-Sai.mp3" preload="auto"></audio>
-<audio id="sound-timeout" src="sound-timeout.mp3" preload="auto"></audio>
+<audio id="sound-correct" src="sound-Dung.mp3"></audio>
+<audio id="sound-wrong" src="sound-Sai.mp3"></audio>
+<audio id="sound-timeout" src="timeout.mp3"></audio>
 
 <script>
 /* ===================================================================
-   HẰNG SỐ: Khoá lưu trữ dữ liệu localStorage cục bộ
+   HỆ THỐNG BIẾN TOÀN CỤC & LUỒNG ĐIỀU KHIỂN LOGIC
 =================================================================== */
-const LS = {
-    NICKNAME:  'catq_nickname',
-    DONVI:     'catq_donvi',
-    HISTORY:   'catq_history',   // Mảng chứa tối đa 15 lượt thi gần nhất
-    BOOKMARKS: 'catq_bookmarks'  // Mảng các câu hỏi được đánh dấu khó ôn tập
+let quizQuestions = []; 
+let currentIdx = 0;
+let selectedOptionIdx = null; 
+let userAnswers = []; 
+let timerInterval = null;
+let timeLeft = 0; // Đếm lùi thời gian
+let timeUsed = 0; // Lưu thời gian đã dùng khi hoàn thành
+let totalTimeAllocated = 0;
+let isAudioMuted = false;
+let hasConfirmed = false;
+
+let savedConfig = {
+    quiz_mode: "practice",
+    mode: "all",
+    qcount: "10",
+    shuffle: "off"
+};
+
+let currentQuestionMapping = []; 
+
+const STORAGE_USER_KEY = "ca_quiz_user";
+const STORAGE_DONVI_KEY = "ca_quiz_donvi";
+const STORAGE_HIST_KEY = "ca_quiz_history_v6";
+const STORAGE_BOOK_KEY = "ca_quiz_bookmarks";
+
+window.onload = function() {
+    const savedUser = localStorage.getItem(STORAGE_USER_KEY);
+    const savedDonvi = localStorage.getItem(STORAGE_DONVI_KEY);
+    if(savedUser) document.getElementById('nickname').value = savedUser;
+    if(savedDonvi) document.getElementById('donvi').value = savedDonvi;
+
+    assignTopicsToQuestions();
+    renderHistory();
+    showTopRecordBanner();
 };
 
 /* ===================================================================
-   BIẾN TRẠNG THÁI TOÀN CỤC (GLOBAL STATE)
+   PHÂN CHIA NGÂN HÀNG CÂU HỎI
 =================================================================== */
-let currentQuiz     = []; // Danh sách câu hỏi được bốc cho lượt thi hiện hành
-let currentIndex    = 0;  // Vị trí chỉ số câu hỏi đang làm bài hiện tại
-let score           = 0;  // Tổng số điểm số câu trả lời chính xác
-let userSelected    = null; // Nội dung văn bản đáp án người dùng chọn
-let timerInterval   = null; // Biến định thời quản lý vòng lặp setInterval
-let timeLeft        = 600;  // Tổng số giây thời gian làm bài còn lại
-let isAudioMuted    = false; // Trạng thái tắt/bật âm thanh hệ thống phần mềm
-let totalQuestions  = 10;   // Số lượng câu hỏi quy định theo từng chế độ thi
-let wrongAnswers    = [];   // Mảng lưu danh sách câu trả lời sai: [{question, answers, correct_answer, userAnswer}]
+function assignTopicsToQuestions() {
+    if (!window.allQuestions || !window.allQuestions.length) return;
+    window.allQuestions.forEach((q, index) => {
+        let order = index + 1; 
+        if (order >= 1 && order <= 107) q.custom_topic = "noivu";
+        else if (order >= 108 && order <= 140) q.custom_topic = "doingu";
+        else if (order >= 141 && order <= 171) q.custom_topic = "nghile";
+        else if (order >= 172 && order <= 278) q.custom_topic = "xuly";
+        else q.custom_topic = "all";
+    });
+}
 
-let currentNickname = "";   // Lưu trữ thông tin Họ tên người dùng hiện tại
-let currentDonvi    = "";   // Lưu trữ thông tin Đơn vị công tác người dùng hiện tại
+function getBookmarks() {
+    try {
+        const b = localStorage.getItem(STORAGE_BOOK_KEY);
+        return b ? JSON.parse(b) : [];
+    } catch(e) { return []; }
+}
 
 /* ===================================================================
-   KHI KHỞI CHẠY PHẦN MỀM (INITIALIZATION)
-=================================================================== */
-window.addEventListener('DOMContentLoaded', () => {
-    // Thử khôi phục dữ liệu đăng nhập từ LocalStorage nếu có sẵn trước đó
-    const savedName = localStorage.getItem(LS.NICKNAME);
-    const savedDv   = localStorage.getItem(LS.DONVI);
-
-    if (savedName && savedDv) {
-        currentNickname = savedName;
-        currentDonvi    = savedDv;
-        showModeScreen();
-    } else {
-        renderHistory();
-    }
-});
-
-/* ===================================================================
-   TÍNH NĂNG 1: ĐĂNG NHẬP THÀNH VIÊN VÀ QUẢN LÝ TÀI KHOẢN
+   XỬ LÝ ĐĂNG NHẬP & THÔNG TIN BANNER
 =================================================================== */
 function login() {
-    const nickInput = document.getElementById('nickname').value.trim();
-    const dvInput   = document.getElementById('donvi').value.trim();
+    const nameInput = document.getElementById('nickname').value.trim();
+    const donviInput = document.getElementById('donvi').value.trim();
 
-    if (!nickInput) {
-        alert('Đồng chí vui lòng nhập Họ tên hoặc Nickname!');
-        return;
-    }
-    if (!dvInput) {
-        alert('Đồng chí vui lòng nhập Đơn vị công tác!');
+    if(!nameInput || !donviInput) {
+        alert("Vui lòng nhập đầy đủ Họ tên và Đơn vị công tác trước khi bắt đầu!");
         return;
     }
 
-    // Gán dữ liệu định danh riêng biệt vào hệ thống biến toàn cục
-    currentNickname = nickInput;
-    currentDonvi    = dvInput;
+    currentUser = nameInput;
+    currentDonvi = donviInput;
+    localStorage.setItem(STORAGE_USER_KEY, currentUser);
+    localStorage.setItem(STORAGE_DONVI_KEY, currentDonvi);
 
-    // Lưu trữ thông tin định danh vào LocalStorage cục bộ để tự động đăng nhập lần sau
-    localStorage.setItem(LS.NICKNAME, currentNickname);
-    localStorage.setItem(LS.DONVI, currentDonvi);
+    document.getElementById('welcome-name').innerText = currentUser;
+    document.getElementById('welcome-donvi').innerText = currentDonvi;
 
-    // Tự động load âm thanh hệ thống sẵn sàng an toàn tránh lỗi trình duyệt ngăn chặn
-    try {
-        document.getElementById('sound-correct').load();
-        document.getElementById('sound-wrong').load();
-        document.getElementById('sound-timeout').load();
-    } catch(e) { console.log(e); }
-
-    // Chuyển nhanh sang màn hình lựa chọn chế độ thi trắc nghiệm điều lệnh
-    showModeScreen();
+    document.getElementById('login-screen').classList.add('hidden');
+    document.getElementById('mode-screen').classList.remove('hidden');
 }
 
 function logout() {
-    // Xóa bỏ dữ liệu định danh tài khoản khỏi phiên nhớ localStorage
-    localStorage.removeItem(LS.NICKNAME);
-    localStorage.removeItem(LS.DONVI);
-    currentNickname = "";
-    currentDonvi    = "";
-
     document.getElementById('mode-screen').classList.add('hidden');
     document.getElementById('login-screen').classList.remove('hidden');
     renderHistory();
+    showTopRecordBanner();
 }
 
 /* ===================================================================
-   TÍNH NĂNG 2: CHỌN CHẾ ĐỘ THI & BỐC ĐỀ TỪ NGÂN HÀNG CÂU HỎI
+   TÍNH NĂNG THOÁT KHI ĐANG THI (MỤC III)
 =================================================================== */
-function showModeScreen() {
-    // Ẩn tất cả các màn hình chức năng giao diện khác
-    ['login-screen','result-screen','quiz-screen','review-screen'].forEach(id => 
-        document.getElementById(id).classList.add('hidden')
-    );
-    document.getElementById('mode-screen').classList.remove('hidden');
-
-    // Cập nhật thông tin định danh hiển thị lên giao diện chào mừng đồng chí
-    document.getElementById('welcome-name').textContent  = currentNickname;
-    document.getElementById('welcome-donvi').textContent = currentDonvi;
-
-    // Cập nhật thông báo nhắc nhở liên quan đến các câu hỏi đánh dấu khó
-    const bookmarks = getBookmarks();
-    const notice    = document.getElementById('bookmark-notice');
-    if (bookmarks.length > 0) {
-        notice.textContent = `⭐ Đồng chí đang có ${bookmarks.length} câu hỏi đánh dấu khó. Các câu này sẽ được ưu tiên xuất hiện trong lượt thi sắp tới!`;
-        notice.classList.remove('hidden');
-    } else {
-        notice.classList.add('hidden');
+function confirmExit() {
+    if (confirm("Đồng chí có chắc chắn muốn thoát không? (Kết quả sẽ không được lưu)")) {
+        clearInterval(timerInterval);
+        document.getElementById('quiz-screen').classList.add('hidden');
+        document.getElementById('exam-screen').classList.add('hidden');
+        document.getElementById('mode-screen').classList.remove('hidden');
     }
 }
 
-function selectMode(n) {
-    totalQuestions = n;
-    startQuiz();
+/* ===================================================================
+   TIỆN ÍCH: MẸO THI, NGÂN HÀNG, TÌM KIẾM (MỤC V, VI, VII)
+=================================================================== */
+function openTools(type) {
+    document.getElementById('mode-screen').classList.add('hidden');
+    document.getElementById('tools-screen').classList.remove('hidden');
+    const content = document.getElementById('tools-content');
+    const title = document.getElementById('tools-title');
+
+    if (type === 'tips') {
+        title.innerText = "Mẹo thi hiệu quả";
+        content.innerHTML = `
+            <div class="tips-content">
+                <h3>💡 Phương pháp ôn luyện Điều lệnh hiệu quả</h3>
+                <ul>
+                    <li><b>Hiểu rõ mục đích:</b> Không nên học vẹt. Hãy phân tích ngữ cảnh của quy định (tại sao lại có quy định đó) để ghi nhớ tự nhiên.</li>
+                    <li><b>Làm quen với ngân hàng đề:</b> Sử dụng chức năng <b>"Ngân hàng câu hỏi"</b> để đọc một lượt toàn bộ câu hỏi và đáp án chuẩn để có cái nhìn tổng quan.</li>
+                    <li><b>Sử dụng Chế độ Ôn Luyện:</b> Làm chế độ "Ôn luyện" với "Đảo đáp án" MỞ. Hệ thống sẽ báo đúng/sai lập tức giúp não bộ sửa lỗi sai ngay tại chỗ.</li>
+                    <li><b>Tính năng Đánh dấu câu khó (★):</b> Khi gặp câu hay nhầm lẫn, hãy bấm nút "Đánh dấu câu khó". Cuối ngày, hãy chọn chuyên đề "Ôn luyện câu khó" để giải quyết dứt điểm các điểm yếu này.</li>
+                    <li><b>Thi thử như thi thật:</b> Trước ngày kiểm tra, hãy chuyển sang chế độ <b>"Thi thật"</b> kết hợp hẹn giờ để tạo áp lực thời gian, rèn luyện tâm lý vững vàng.</li>
+                </ul>
+            </div>
+        `;
+    } else if (type === 'bank' || type === 'search') {
+        title.innerText = type === 'bank' ? "Ngân hàng câu hỏi" : "Tìm kiếm câu hỏi";
+        let searchUI = '';
+        if (type === 'search') {
+            searchUI = `<input type="text" id="search-input" class="search-bar" placeholder="Nhập từ khóa nội dung câu hỏi hoặc đáp án..." onkeyup="executeSearch()">`;
+        }
+        content.innerHTML = searchUI + `<div id="bank-list"></div>`;
+        // Trong hàm openTools, tìm đến chỗ gọi renderBankList:
+        if (type === 'bank') {
+           renderBankList(window.allQuestions, null); // Truyền null để không hiện thông báo số lượng
+        }
+        else document.getElementById('bank-list').innerHTML = '<p style="color:#666; font-style:italic">Nhập từ khóa vào ô trên để tìm kiếm...</p>';
+    }
 }
 
-/* ===================================================================
-   TÍNH NĂNG 3: QUẢN LÝ TIẾN TRÌNH LÀM BÀI TRẮC NGHIỆM
-=================================================================== */
-function startQuiz() {
-    // Kiểm tra tính hợp lệ và an toàn của Ngân hàng câu hỏi trong file dữ liệu đính kèm
-    if (typeof window.allQuestions === 'undefined' || window.allQuestions.length === 0) {
-        alert('Lỗi nghiêm trọng: Hệ thống không tìm thấy tệp cơ sở dữ liệu câu hỏi "questions.js". Đồng chí vui lòng kiểm tra xem tệp này có được đặt cùng chung thư mục với file cấu hình chạy này không!');
+function closeTools() {
+    document.getElementById('tools-screen').classList.add('hidden');
+    document.getElementById('mode-screen').classList.remove('hidden');
+}
+
+function executeSearch() {
+    const kw = document.getElementById('search-input').value.trim().toLowerCase();
+    const bankList = document.getElementById('bank-list');
+    
+    if (!kw) {
+        bankList.innerHTML = '';
         return;
     }
 
-    // Đồng bộ xử lý cập nhật hiển thị banner kỷ lục cao nhất Top 1 hệ thống dữ liệu lịch sử
-    updateTopRankBanner();
+    const filtered = window.allQuestions.filter(q => {
+        const qMatch = q.question.toLowerCase().includes(kw);
+        const aMatch = q.answers.some(a => a.toLowerCase().includes(kw));
+        return qMatch || aMatch;
+    });
 
-    // Khởi tạo thiết lập ban đầu các giá trị quản lý lượt thi mới
-    currentIndex = 0;
-    score        = 0;
-    userSelected = null;
-    wrongAnswers = [];
+    // Truyền độ dài của mảng filtered vào hàm render
+    renderBankList(filtered, filtered.length);
+}
 
-    document.getElementById('feedback-container').innerHTML = '';
-    document.getElementById('submit-btn').classList.remove('hidden');
-    document.getElementById('next-btn').classList.add('hidden');
+function renderBankList(questions, totalResults = null) {
+    const listContainer = document.getElementById('bank-list');
+    if (!listContainer) return;
 
-    // Thuật toán bốc đề nâng cao: Tách biệt nhóm câu đã đánh dấu khó và nhóm câu thông thường ôn luyện
-    const allQ    = window.allQuestions;
-    const markedQ = allQ.filter(q => isBookmarked(q.question.trim()));
-    const normalQ = allQ.filter(q => !isBookmarked(q.question.trim())).sort(() => 0.5 - Math.random());
-
-    // Giới hạn tối đa cấu hình bốc câu hỏi khó chiếm 50% tổng dung lượng câu đề thi quy định
-    const maxMarked = Math.floor(totalQuestions / 2);
-    const mSlice    = markedQ.slice(0, Math.min(maxMarked, markedQ.length));
-    const nSlice    = normalQ.slice(0, totalQuestions - mSlice.length);
-
-    // Trộn ngẫu nhiên tập hợp câu hỏi cuối cùng được bốc ra
-    currentQuiz = [...mSlice, ...nSlice].sort(() => 0.5 - Math.random());
-
-    // Dự phòng lỗi bảo vệ hệ thống: Nếu kho ngân hàng câu hỏi nhỏ hơn cấu hình quy định đề bài
-    if (currentQuiz.length < totalQuestions) {
-        currentQuiz    = allQ.sort(() => 0.5 - Math.random()).slice(0, Math.min(totalQuestions, allQ.length));
-        totalQuestions = currentQuiz.length;
+    let html = '';
+    
+    // Thêm thông báo số kết quả nếu có
+    if (totalResults !== null) {
+        html += `<div style="padding: 10px; background: #fff3e0; margin-bottom: 10px; border-radius: 5px; font-weight: bold; color: #e65100;">
+                    🔍 Tìm thấy ${totalResults} câu hỏi phù hợp.
+                 </div>`;
     }
 
-    // Thiết lập cấu hình bộ đếm ngược thời gian: Quy định chuẩn 1 phút đối với 1 câu hỏi làm bài
-    timeLeft = totalQuestions * 60;
-    clearInterval(timerInterval);
-    updateTimerDisplay();
+    questions.forEach((q) => {
+        html += `
+            <div class="bank-q-item" style="margin-bottom: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 8px;">
+                <div style="font-size: 17px; margin-bottom: 10px; font-weight: bold;">
+                    ${q.question}
+                </div>
+                <div class="bank-options">
+                    ${q.answers.map((ans, i) => {
+                        const isCorrect = (ans.trim() === q.correct_answer.trim());
+                        const style = isCorrect 
+                            ? 'background: var(--correct-bg); color: var(--correct); font-weight: bold; border: 1px solid var(--correct);' 
+                            : 'background: #f9f9f9;';
+                        const icon = isCorrect ? ' ✓' : '';
+                        return `
+                            <div style="margin-bottom: 5px; padding: 8px; border-radius: 4px; ${style}">
+                                ${String.fromCharCode(65 + i)}. ${ans} ${icon}
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            </div>`;
+    });
+    
+    listContainer.innerHTML = html || '<p style="color:#666; font-style:italic">Không tìm thấy kết quả.</p>';
+}
 
+/* ===================================================================
+   KHỞI TẠO BÀI THI (ĐỌC CẤU HÌNH RADIO BUTTON)
+=================================================================== */
+function startQuiz() {
+    savedConfig.quiz_mode = document.querySelector('input[name="quiz_mode"]:checked').value;
+    savedConfig.mode = document.querySelector('input[name="topic"]:checked').value;
+    savedConfig.qcount = document.querySelector('input[name="qcount"]:checked').value;
+    savedConfig.shuffle = document.querySelector('input[name="shuffle"]:checked').value;
+
+    buildQuizSession();
+}
+
+function buildQuizSession() {
+    if (!window.allQuestions || !window.allQuestions.length) {
+        alert("Không tìm thấy cơ sở dữ liệu câu hỏi hệ thống!"); return;
+    }
+
+    let pool = [];
+    if (savedConfig.mode === "all") {
+        pool = [...window.allQuestions];
+    } else if (savedConfig.mode === "difficult") {
+        const books = getBookmarks();
+        pool = window.allQuestions.filter(q => books.includes(q.id));
+    } else {
+        pool = window.allQuestions.filter(q => q.custom_topic === savedConfig.mode);
+    }
+
+    if (pool.length === 0) {
+        alert("Chuyên đề được chọn hiện chưa có câu hỏi nào hoặc danh sách câu khó trống!");
+        return;
+    }
+
+    // Xáo trộn đề
+    let shuffledPool = [...pool].sort(() => Math.random() - 0.5);
+
+    let count = 10;
+    if (savedConfig.qcount === "max_topic") {
+        count = shuffledPool.length;
+    } else {
+        count = parseInt(savedConfig.qcount, 10);
+        if (isNaN(count)) count = 10;
+    }
+    if (count > shuffledPool.length) count = shuffledPool.length;
+
+    quizQuestions = shuffledPool.slice(0, count);
+
+    // Cấu hình đếm lùi thời gian (Mục I: 30s/câu)
+    totalTimeAllocated = quizQuestions.length * 30; 
+    timeLeft = totalTimeAllocated;
+    timeUsed = 0;
+
+    userAnswers = new Array(quizQuestions.length).fill(null);
+    document.getElementById('mode-screen').classList.add('hidden');
+    document.getElementById('result-screen').classList.add('hidden');
+
+    if (savedConfig.quiz_mode === "exam") {
+        // CHẾ ĐỘ THI THẬT
+        document.getElementById('exam-screen').classList.remove('hidden');
+        renderExamView();
+        startTimer('timer_exam');
+    } else {
+        // CHẾ ĐỘ ÔN LUYỆN
+        currentIdx = 0;
+        selectedOptionIdx = null;
+        hasConfirmed = false;
+        document.getElementById('quiz-screen').classList.remove('hidden');
+        showQuestion();
+        startTimer('timer_practice');
+    }
+}
+
+/* ===================================================================
+   CHẾ ĐỘ 1: ÔN LUYỆN (TỪNG CÂU)
+=================================================================== */
+function showQuestion() {
+    selectedOptionIdx = null;
+    hasConfirmed = false;
+
+    const q = quizQuestions[currentIdx];
+    const total = quizQuestions.length;
+    const currentDisplayNum = currentIdx + 1;
+
+    const pctWidth = (currentIdx / total) * 100;
+    document.getElementById('progress').style.width = `${pctWidth}%`;
+    
+    let correctSoFar = 0, checkedSoFar = 0;
+    for (let i = 0; i < currentIdx; i++) {
+        if (userAnswers[i] !== null) {
+            checkedSoFar++;
+            if (userAnswers[i].is_correct) correctSoFar++;
+        }
+    }
+    const currentAccuracy = checkedSoFar > 0 ? Math.round((correctSoFar / checkedSoFar) * 100) : 0;
+    document.getElementById('progress-text').innerText = `Câu hỏi: ${currentDisplayNum}/${total} - Tỷ lệ chính xác: ${currentAccuracy}%`;
+
+    const books = getBookmarks();
+    const btnBook = document.getElementById('bookmark-btn');
+    if(books.includes(q.id)) {
+        btnBook.innerText = "★ Đã đánh dấu câu khó";
+        btnBook.classList.add('bookmarked');
+    } else {
+        btnBook.innerText = "☆ Đánh dấu câu khó";
+        btnBook.classList.remove('bookmarked');
+    }
+
+    let cleanQuestionText = q.question.replace(/^Câu\s+\d+[\s:.-]*/i, "");
+    document.getElementById('question-text').innerText = cleanQuestionText;
+
+    let answersArray = [];
+    q.answers.forEach((ansText, originalIndex) => {
+        answersArray.push({ text: ansText, isCorrect: (ansText === q.correct_answer), origIdx: originalIndex });
+    });
+
+    if (savedConfig.shuffle === "on") answersArray.sort(() => Math.random() - 0.5);
+    currentQuestionMapping = answersArray;
+
+    const optionsContainer = document.getElementById('options-container');
+    optionsContainer.innerHTML = "";
+    document.getElementById('feedback-container').innerHTML = "";
+
+    currentQuestionMapping.forEach((item, index) => {
+        const btn = document.createElement('button');
+        btn.className = "option-btn";
+        btn.id = `opt-${index}`;
+        btn.innerHTML = `<span class="radio-circle"></span><span style="flex:1">${escapeHtml(item.text)}</span>`;
+        btn.onclick = () => { if (!hasConfirmed) selectOption(index); };
+        optionsContainer.appendChild(btn);
+    });
+
+    const nextBtn = document.getElementById('next-btn');
+    nextBtn.innerText = "XÁC NHẬN ĐÁP ÁN ✔";
+    nextBtn.style.background = "var(--primary)";
+}
+
+function selectOption(idx) {
+    selectedOptionIdx = idx;
+    currentQuestionMapping.forEach((_, i) => {
+        const btn = document.getElementById(`opt-${i}`);
+        if(btn) {
+            if(i === idx) btn.classList.add('selected');
+            else btn.classList.remove('selected');
+        }
+    });
+}
+
+function confirmOrNext() {
+    if (selectedOptionIdx === null) {
+        alert("Đồng chí vui lòng chọn một đáp án trước khi thực hiện thao tác!"); return;
+    }
+    const nextBtn = document.getElementById('next-btn');
+
+    if (!hasConfirmed) {
+        hasConfirmed = true;
+        const chosen = currentQuestionMapping[selectedOptionIdx];
+        const q = quizQuestions[currentIdx];
+
+        userAnswers[currentIdx] = {
+            chosenText: chosen.text, is_correct: chosen.isCorrect, correctText: q.correct_answer, questionText: q.question, qId: q.id
+        };
+
+        const fbContainer = document.getElementById('feedback-container');
+        if (chosen.isCorrect) {
+            playSound('sound-correct');
+            fbContainer.innerHTML = `<div class="result-msg correct-banner">Chính xác !</div>`;
+        } else {
+            playSound('sound-wrong');
+            fbContainer.innerHTML = `<div class="result-msg wrong-banner">Sai rồi<br>Bạn hãy chú ý đáp án đúng có màu xanh</div>`;
+        }
+
+        currentQuestionMapping.forEach((item, i) => {
+            const btn = document.getElementById(`opt-${i}`);
+            if (btn) {
+                if (item.isCorrect) btn.className = "option-btn reveal-correct";
+                else if (i === selectedOptionIdx) btn.className = "option-btn reveal-wrong";
+            }
+        });
+
+        if (currentIdx === quizQuestions.length - 1) nextBtn.innerText = "XEM KẾT QUẢ CHUNG CUỘC ➜";
+        else nextBtn.innerText = "CÂU TIẾP THEO ➜";
+        nextBtn.style.background = "#4e342e";
+    } else {
+        if (currentIdx < quizQuestions.length - 1) {
+            currentIdx++; showQuestion();
+        } else {
+            finishQuiz();
+        }
+    }
+}
+
+/* ===================================================================
+   CHẾ ĐỘ 2: THI THẬT (EXAM MODE) - TẤT CẢ TRÊN 1 TRANG (MỤC IV)
+=================================================================== */
+function renderExamView() {
+    const wrapper = document.getElementById('exam-questions-wrapper');
+    wrapper.innerHTML = "";
+
+    quizQuestions.forEach((q, qIndex) => {
+        let cleanQuestionText = q.question.replace(/^Câu\s+\d+[\s:.-]*/i, "");
+        
+        let answersArray = [];
+        q.answers.forEach((ansText, originalIndex) => {
+            answersArray.push({ text: ansText, isCorrect: (ansText === q.correct_answer), origIdx: originalIndex });
+        });
+        if (savedConfig.shuffle === "on") answersArray.sort(() => Math.random() - 0.5);
+
+        // Lưu mapping ngầm để chấm điểm
+        q._examMapping = answersArray;
+
+        let html = `<div class="exam-q-box" id="exam_qbox_${qIndex}">
+            <div class="exam-q-title">Câu ${qIndex + 1}: ${escapeHtml(cleanQuestionText)}</div>
+            <div class="exam-options">`;
+        
+        answersArray.forEach((item, aIndex) => {
+            html += `
+                <label class="exam-opt-label" id="lbl_exam_${qIndex}_${aIndex}">
+                    <input type="radio" name="exam_q_${qIndex}" value="${aIndex}" onchange="selectExamOption(${qIndex}, ${aIndex}, ${answersArray.length})">
+                    <span style="flex:1">${escapeHtml(item.text)}</span>
+                </label>
+            `;
+        });
+        html += `</div></div>`;
+        wrapper.insertAdjacentHTML('beforeend', html);
+    });
+}
+
+function selectExamOption(qIndex, aIndex, totalOptions) {
+    // Reset background class
+    for(let i=0; i<totalOptions; i++) {
+        const lbl = document.getElementById(`lbl_exam_${qIndex}_${i}`);
+        if(lbl) lbl.classList.remove('selected-exam');
+    }
+    const selectedLbl = document.getElementById(`lbl_exam_${qIndex}_${aIndex}`);
+    if(selectedLbl) selectedLbl.classList.add('selected-exam');
+
+    // Lưu mảng đáp án
+    const q = quizQuestions[qIndex];
+    const chosen = q._examMapping[aIndex];
+    userAnswers[qIndex] = {
+        chosenText: chosen.text,
+        is_correct: chosen.isCorrect,
+        correctText: q.correct_answer,
+        questionText: q.question,
+        qId: q.id
+    };
+}
+
+function manualSubmitExam() {
+    if (confirm("Đồng chí có chắc chắn muốn nộp bài kết thúc thi không?")) {
+        finishQuiz();
+    }
+}
+
+/* ===================================================================
+   BỘ ĐẾM THỜI GIAN ĐẾM LÙI CHUNG
+=================================================================== */
+function startTimer(elementId) {
+    clearInterval(timerInterval);
+    updateTimerDisplay(elementId);
+    
     timerInterval = setInterval(() => {
         timeLeft--;
-        updateTimerDisplay();
-
+        updateTimerDisplay(elementId);
+        
         if (timeLeft <= 0) {
             clearInterval(timerInterval);
             playSound('sound-timeout');
-            alert('Hết giờ! Hệ thống tự động khóa bài thi và chuyển sang giao diện chấm điểm thống kê.');
-            showResult();
+            alert("HẾT GIỜ LÀM BÀI!");
+            finishQuiz();
         }
     }, 1000);
-
-    // Điều hướng hiển thị nội dung câu hỏi đầu tiên của tiến trình
-    ['login-screen','mode-screen','result-screen','review-screen'].forEach(id => 
-        document.getElementById(id).classList.add('hidden')
-    );
-    document.getElementById('quiz-screen').classList.remove('hidden');
-    
-    showQuestion();
 }
 
-function updateTimerDisplay() {
-    const m = Math.floor(timeLeft / 60);
-    const s = timeLeft % 60;
-    document.getElementById('timer').innerText = `⏱ Thời gian còn lại: ${m}:${s < 10 ? '0' : ''}${s}`;
-}
-
-function showQuestion() {
-    const q = currentQuiz[currentIndex];
-
-    // Cập nhật trực quan Thanh tiến độ và nhãn text overlay tương ứng trên màn hình làm bài
-    const percent = Math.round(((currentIndex + 1) / totalQuestions) * 100);
-    document.getElementById('progress').style.width = percent + '%';
-    
-    const textNode = document.getElementById('progress-text');
-    textNode.innerHTML = `CÂU ${currentIndex + 1}/${totalQuestions} (${percent}%)`;
-    textNode.style.left = (percent / 2) + '%';
-    textNode.style.transform = 'translateX(-50%)';
-
-    // Xử lý làm sạch tiêu đề chuỗi nội dung văn bản câu hỏi (loại bỏ chuỗi Câu X: thừa)
-    const cleanQ = q.question.trim().replace(/^Câu\s*\d+\s*[:.]\s*/i, '');
-    document.getElementById('question-text').innerText = cleanQ;
-
-    // Đồng bộ cập nhật giao diện nút đánh dấu câu hỏi khó theo trạng thái hiện thời
-    updateBookmarkBtn(isBookmarked(q.question.trim()));
-
-    // Xóa sạch dữ liệu cũ và tiến hành xây dựng các nút phương án đáp án lựa chọn mới
-    const container = document.getElementById('options-container');
-    container.innerHTML = '';
-    document.getElementById('feedback-container').innerHTML = '';
-
-    (q.answers || []).forEach(opt => {
-        const btn     = document.createElement('button');
-        btn.className = 'option-btn';
-        
-        const circle  = document.createElement('span');
-        circle.className = 'radio-circle';
-
-        const textSpan     = document.createElement('span');
-        textSpan.className = 'opt-text';
-        textSpan.innerText = opt;
-
-        btn.appendChild(circle);
-        btn.appendChild(textSpan);
-
-        // Đính kèm sự kiện click lựa chọn phương án cho đồng chí ôn luyện
-        btn.onclick = () => {
-            if (document.getElementById('submit-btn').classList.contains('hidden')) return; // Khóa click nếu đã chốt đáp án
-            
-            const allBtns = container.querySelectorAll('.option-btn');
-            allBtns.forEach(b => b.classList.remove('selected'));
-            btn.classList.add('selected');
-            userSelected = opt;
-        };
-
-        container.appendChild(btn);
-    });
-
-    // Đồng bộ hóa quản lý hiển thị các nút chức năng điều hướng
-    document.getElementById('submit-btn').classList.remove('hidden');
-    document.getElementById('next-btn').classList.add('hidden');
-}
-
-function submitAnswer() {
-    if (!userSelected) {
-        alert('Đồng chí vui lòng click chọn một phương án đáp án trước khi thực hiện chốt kết quả bài làm!');
-        return;
-    }
-
-    const q          = currentQuiz[currentIndex];
-    const correctAns = q.correct_answer;
-    const container  = document.getElementById('options-container');
-    const allBtns    = container.querySelectorAll('.option-btn');
-    const feedback   = document.getElementById('feedback-container');
-
-    // Logic kiểm tra so khớp nội dung chuỗi đáp án chốt bài làm
-    if (userSelected === correctAns) {
-        score++;
-        playSound('sound-correct');
-        feedback.innerText = '✔ CHÍNH XÁC!\n• Chúc mừng đồng chí đã đưa ra câu trả lời đúng.';
-        feedback.className = 'result-msg correct-banner';
-
-        // Đổi màu nền hiển thị phương án lựa chọn đúng sang màu xanh lá cây đậm trực quan
-        allBtns.forEach(btn => {
-            if (btn.querySelector('.opt-text').innerText === correctAns) {
-                btn.classList.add('reveal-correct');
-            }
-        });
-    } else {
-        playSound('sound-wrong');
-        feedback.innerText = '✘ SAI RỒI!\n• Đồng chí chú ý nghiên cứu kỹ đáp án chỉ dẫn màu xanh lá cây trên màn hình.';
-        feedback.className = 'result-msg wrong-banner';
-
-        // Ghi nhận đóng gói đối tượng câu hỏi bị trả lời sai phục vụ cấu hình xem lại sau này
-        wrongAnswers.push({
-            question:       q.question,
-            answers:        q.answers,
-            correct_answer: q.correct_answer,
-            userAnswer:     userSelected
-        });
-
-        // Hiển thị trực quan phương án chọn sai (màu đỏ) và phương án đúng chuẩn (màu xanh lá)
-        allBtns.forEach(btn => {
-            const t = btn.querySelector('.opt-text').innerText;
-            if (t === userSelected) btn.classList.add('reveal-wrong');
-            if (t === correctAns)   btn.classList.add('reveal-correct');
-        });
-    }
-
-    // Hoán đổi hiển thị nút Chốt đáp án sang nút chuyển tiếp Câu tiếp theo
-    document.getElementById('submit-btn').classList.add('hidden');
-    document.getElementById('next-btn').classList.remove('hidden');
-}
-
-function nextQuestion() {
-    currentIndex++;
-    userSelected = null;
-
-    if (currentIndex < totalQuestions) {
-        showQuestion();
-    } else {
-        showResult();
+function updateTimerDisplay(elementId) {
+    const el = document.getElementById(elementId);
+    if(el) {
+        const m = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+        const s = (timeLeft % 60).toString().padStart(2, '0');
+        el.innerText = `⏱ ${m}:${s}`;
     }
 }
 
 /* ===================================================================
-   TÍNH NĂNG 4: LƯU TRỮ LỊCH SỬ & KẾT QUẢ CHẤM ĐIỂM
+   CHẤM ĐIỂM VÀ LƯU LỊCH SỬ KẾT QUẢ
 =================================================================== */
-function showResult() {
+function finishQuiz() {
     clearInterval(timerInterval);
+    timeUsed = totalTimeAllocated - timeLeft;
+    if (timeUsed < 0) timeUsed = 0;
+    
+    let score = 0;
+    // Chạy mảng kiểm tra (tránh trường hợp userAnswers có phần tử rỗng nếu hết giờ chưa làm)
+    for(let i=0; i<quizQuestions.length; i++) {
+        if(!userAnswers[i]) {
+            userAnswers[i] = {
+                chosenText: "Chưa trả lời",
+                is_correct: false,
+                correctText: quizQuestions[i].correct_answer,
+                questionText: quizQuestions[i].question,
+                qId: quizQuestions[i].id
+            };
+        } else if (userAnswers[i].is_correct) {
+            score++;
+        }
+    }
 
-    ['quiz-screen','mode-screen','review-screen'].forEach(id => 
-        document.getElementById(id).classList.add('hidden')
-    );
+    const total = quizQuestions.length;
+    const pct = total > 0 ? Math.round((score / total) * 100) : 0;
+    
+    let rankMsg = "";
+    if(pct >= 50) {
+        rankMsg = "<span style='color:var(--correct)'>KẾT QUẢ: ĐẠT</span>";
+    } else {
+        rankMsg = "<span style='color:var(--wrong)'>KẾT QUẢ: CHƯA ĐẠT</span>";
+    }
+
+    document.getElementById('result-name').innerText = currentUser;
+    document.getElementById('result-donvi').innerText = currentDonvi;
+    document.getElementById('result-score').innerText = `${score} / ${total}`;
+    document.getElementById('result-pct').innerText = `Tỷ lệ chính xác: ${pct}%`;
+    
+    const m = Math.floor(timeUsed / 60);
+    const s = timeUsed % 60;
+    document.getElementById('result-time').innerText = `⏱ Tổng thời gian làm bài: ${m} phút ${s} giây`;
+    document.getElementById('result-rank-msg').innerHTML = rankMsg;
+
+    const wrongCount = total - score;
+    const reviewBtn = document.getElementById('review-wrong-btn');
+    if(wrongCount > 0) {
+        reviewBtn.innerText = `XEM CÂU SAI (${wrongCount})`;
+        reviewBtn.style.display = "inline-block";
+    } else {
+        reviewBtn.style.display = "none";
+    }
+
+    saveRecordToHistory(score, total, timeUsed);
+
+    document.getElementById('quiz-screen').classList.add('hidden');
+    document.getElementById('exam-screen').classList.add('hidden');
     document.getElementById('result-screen').classList.remove('hidden');
-
-    const timeUsed = (totalQuestions * 60) - timeLeft;
-    const wrong    = totalQuestions - score;
-    const pct      = ((score / totalQuestions) * 100).toFixed(1);
-
-    // Định dạng chuỗi văn bản hiển thị thời gian làm bài thực tế chỉn chu
-    const mUsed = Math.floor(timeUsed / 60);
-    const sUsed = timeUsed % 60;
-
-    // Ghi nhận múi giờ ngày tháng thực thi lưu trữ lịch sử thi
-    const now = new Date();
-    const pad = n => n.toString().padStart(2, '0');
-    const dateStr = `${pad(now.getDate())}/${pad(now.getMonth()+1)}/${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
-
-    // Lưu trữ đối tượng kết quả thi vào phân hệ quản lý lịch sử
-    saveToHistory({
-        date:     dateStr,
-        nickname: currentNickname,
-        donvi:    currentDonvi,
-        score:    score,
-        total:    totalQuestions,
-        timeUsed: timeUsed
-    });
-
-    // Cập nhật văn bản hiển thị thành tích cá nhân lên giao diện kết quả
-    document.getElementById('result-name').textContent  = currentNickname;
-    document.getElementById('result-donvi').textContent = currentDonvi;
-
-    document.getElementById('score-summary').innerHTML = `
-        • Tổng số câu hỏi lượt thi: <b>${totalQuestions}</b> câu<br>
-        • Thời gian đã sử dụng: <b>${mUsed} phút ${sUsed} giây</b><br>
-        • Số câu trả lời ĐÚNG: <span style="color:#2e7d32; font-weight:bold;">${score}</span> câu<br>
-        • Số câu trả lời SAI: <span style="color:#c62828; font-weight:bold;">${wrong}</span> câu<br>
-        • Tỷ lệ chính xác chung cuộc: <b>${pct}%</b>
-    `;
-
-    // Cấu hình hiển thị nội dung lời khuyên nhận xét dựa trên ngưỡng tỷ lệ chính xác (Chuẩn 50% đạt yêu cầu)
-    const advice = document.getElementById('advice');
-    if (parseFloat(pct) >= 50.0) {
-        advice.innerText = "CHÚC MỪNG ĐỒNG CHÍ ĐÃ ĐẠT YÊU CẦU ĐIỀU LỆNH!";
-        advice.style.backgroundColor = "#e8f5e9";
-        advice.style.color           = "#1b5e20";
-        advice.style.border          = "1px solid #4caf50";
-    } else {
-        advice.innerText = "KẾT QUẢ: KHÔNG ĐẠT!\n(Đồng chí cần nghiên cứu, ôn luyện kỹ hơn các nội dung quy định Điều lệnh).";
-        advice.style.backgroundColor = "#ffebee";
-        advice.style.color           = "#b71c1c";
-        advice.style.border          = "1px solid #f44336";
-    }
-
-    // Ẩn hoặc Hiện nút xem lại danh sách câu sai tùy thuộc vào số lượng câu trả lời sai thực tế
-    const revBtn = document.getElementById('review-err-btn');
-    if (wrongAnswers.length > 0) {
-        revBtn.style.display = "inline-block";
-    } else {
-        revBtn.style.display = "none";
-    }
 }
 
-function restartQuiz() {
-    // 1. Reset trạng thái biến về mặc định là BẬT âm thanh khi sang lượt thi mới
-    isAudioMuted = false;
-    
-    // 2. Cập nhật lại giao diện nút bấm về trạng thái BẬT ban đầu với màu nền xám đậm phong cách cũ
-    const toggleBtn = document.getElementById('audio-toggle-btn');
-    if (toggleBtn) {
-        toggleBtn.innerText = "🔊 ÂM THANH: BẬT";
-        toggleBtn.style.backgroundColor = "#616161";
-    }
-
-    // 3. Nạp sẵn âm thanh để tránh lỗi trình duyệt chặn tương tác
+function saveRecordToHistory(score, total, timeUsed) {
     try {
-        document.getElementById('sound-correct').load();
-        document.getElementById('sound-wrong').load();
-        document.getElementById('sound-timeout').load();
-    } catch(e) { console.log(e); }
+        const history = localStorage.getItem(STORAGE_HIST_KEY);
+        let list = history ? JSON.parse(history) : [];
+        
+        const newRecord = {
+            name: currentUser, donvi: currentDonvi, score: score, total: total,
+            timeUsed: timeUsed, date: new Date().toLocaleString('vi-VN')
+        };
+        list.unshift(newRecord);
+        if(list.length > 30) list = list.slice(0, 30);
+        localStorage.setItem(STORAGE_HIST_KEY, JSON.stringify(list));
+    } catch(e) {}
+}
 
-    // 4. Đồng bộ logic kiểm tra phân nhánh điều hướng màn hình
-    clearInterval(timerInterval);
-    if (currentNickname) {
-        // Người dùng vẫn đang duy trì trạng thái đăng nhập hợp lệ → Điều hướng thẳng về màn hình chọn câu
-        showModeScreen();
-    } else {
-        // Trong trường hợp hãn hữu mất phiên đăng nhập → Chuyển tiếp quay về giao diện Đăng nhập ban đầu
-        ['quiz-screen','result-screen','review-screen','mode-screen'].forEach(id =>
-            document.getElementById(id).classList.add('hidden')
-        );
-        document.getElementById('login-screen').classList.remove('hidden');
-        renderHistory();
-    }
+function backToMode() {
+    document.getElementById('result-screen').classList.add('hidden');
+    document.getElementById('mode-screen').classList.remove('hidden');
+    renderHistory();
+}
+
+function retryQuizSameConfig() {
+    buildQuizSession();
 }
 
 /* ===================================================================
-   TÍNH NĂNG 5: XEM LẠI DANH SÁCH CÁC CÂU LÀM SAI
+   BOOKMARKS & XEM LẠI CÂU SAI
 =================================================================== */
-function showReviewScreen() {
-    ['quiz-screen','mode-screen','result-screen'].forEach(id => 
-        document.getElementById(id).classList.add('hidden')
-    );
-    document.getElementById('review-screen').classList.remove('hidden');
+function toggleBookmarkCurrent() {
+    const q = quizQuestions[currentIdx];
+    let books = getBookmarks();
+    const btnBook = document.getElementById('bookmark-btn');
 
-    const container = document.getElementById('review-container');
-    container.innerHTML = '';
+    if(books.includes(q.id)) {
+        books = books.filter(id => id !== q.id);
+        btnBook.innerText = "☆ Đánh dấu câu khó";
+        btnBook.classList.remove('bookmarked');
+    } else {
+        books.push(q.id);
+        btnBook.innerText = "★ Đã đánh dấu câu khó";
+        btnBook.classList.add('bookmarked');
+    }
+    localStorage.setItem(STORAGE_BOOK_KEY, JSON.stringify(books));
+}
 
-    wrongAnswers.forEach((item, idx) => {
-        const cleanQ  = item.question.trim().replace(/^Câu\s*\d+\s*[:.]\s*/i, '');
-        const bm      = isBookmarked(item.question.trim());
-        const bmClass = bm ? 'btn-bookmark bookmarked' : 'btn-bookmark';
-        const bmText  = bm ? '⭐ Đã đánh dấu câu khó' : '☆ Đánh dấu câu khó';
+function toggleBookmarkInReview(qId, btn) {
+    let books = getBookmarks();
+    if(books.includes(qId)) {
+        books = books.filter(id => id !== qId);
+        btn.innerText = "☆ Đánh dấu câu khó";
+        btn.style.background = "transparent";
+        btn.style.color = "#999";
+    } else {
+        books.push(qId);
+        btn.innerText = "★ Đã đánh dấu câu khó";
+        btn.style.background = "var(--gold-bg)";
+        btn.style.color = "#6b4f00";
+    }
+    localStorage.setItem(STORAGE_BOOK_KEY, JSON.stringify(books));
+}
 
-        let html = `
-            <div class="review-card" id="rc-${idx}">
-                <div class="review-q-num">Câu sai số ${idx + 1} / ${wrongAnswers.length}</div>
-                <div class="review-q-text">${escapeHtml(cleanQ)}</div>
+function openReview() {
+    const reviewList = document.getElementById('review-list');
+    reviewList.innerHTML = "";
+    let countWrong = 0;
+
+    userAnswers.forEach((ans) => {
+        if(ans && !ans.is_correct) {
+            countWrong++;
+            const card = document.createElement('div');
+            card.className = "review-card";
+            const books = getBookmarks();
+            const isBooked = books.includes(ans.qId);
+
+            let cleanQuestionText = ans.questionText.replace(/^Câu\s+\d+[\s:.-]*/i, "");
+
+            card.innerHTML = `
+                <div class="review-q-num">CÂU TRẢ LỜI CHƯA ĐÚNG THỨ ${countWrong}</div>
+                <div class="review-q-text">${escapeHtml(cleanQuestionText)}</div>
                 <div class="review-answer wrong-ans">
-                    <span class="review-answer-label">✗ Bạn chọn:</span>
-                    <span>${escapeHtml(item.userAnswer)}</span>
+                    <span class="review-answer-label">Đã chọn:</span>
+                    <span style="flex:1">${escapeHtml(ans.chosenText)}</span>
                 </div>
                 <div class="review-answer right-ans">
-                    <span class="review-answer-label">✓ Đáp án đúng:</span>
-                    <span>${escapeHtml(item.correct_answer)}</span>
+                    <span class="review-answer-label">Đáp án đúng:</span>
+                    <span style="flex:1">${escapeHtml(ans.correctText)}</span>
                 </div>
                 <div class="review-bookmark-row">
-                    <button class="${bmClass}" id="rbm-${idx}" onclick="toggleBookmarkInReview(${idx})">
-                        ${bmText}
+                    <button class="btn-bookmark ${isBooked?'bookmarked':''}" onclick="toggleBookmarkInReview(${ans.qId}, this)">
+                        ${isBooked ? '★ Đã đánh dấu câu khó' : '☆ Đánh dấu câu khó'}
                     </button>
                 </div>
-            </div>`;
-        container.insertAdjacentHTML('beforeend', html);
+            `;
+            reviewList.appendChild(card);
+        }
     });
+
+    document.getElementById('result-screen').classList.add('hidden');
+    document.getElementById('review-screen').classList.remove('hidden');
 }
 
-function toggleBookmarkInReview(idx) {
-    const text = wrongAnswers[idx].question.trim();
-    let bookmarks = getBookmarks();
-    const i = bookmarks.indexOf(text);
-    const nowMarked = (i === -1);
-
-    if (nowMarked) {
-        bookmarks.push(text);
-    } else {
-        bookmarks.splice(i, 1);
-    }
-    saveBookmarks(bookmarks);
-
-    // Cập nhật phản hồi nhanh giao diện trạng thái nút bấm tại card xem lại câu hỏi sai
-    const btn = document.getElementById(`rbm-${idx}`);
-    if (nowMarked) {
-        btn.textContent = '⭐ Đã đánh dấu câu khó';
-        btn.className   = 'btn-bookmark bookmarked';
-    } else {
-        btn.textContent = '☆ Đánh dấu câu khó';
-        btn.className   = 'btn-bookmark';
-    }
-}
-
-function backToResult() {
+function closeReview() {
     document.getElementById('review-screen').classList.add('hidden');
     document.getElementById('result-screen').classList.remove('hidden');
 }
 
 /* ===================================================================
-   TÍNH NĂNG 6: ĐÁNH DẤU CÂU HỎI KHÓ — Trong khi thực hiện làm bài
+   LỊCH SỬ BẢNG ĐIỂM
 =================================================================== */
-function getBookmarks() {
-    try {
-        return JSON.parse(localStorage.getItem(LS.BOOKMARKS)) || [];
-    } catch(e) { return []; }
-}
-
-function saveBookmarks(arr) {
-    try {
-        localStorage.setItem(LS.BOOKMARKS, JSON.stringify(arr));
-    } catch(e) {}
-}
-
-function isBookmarked(questionText) {
-    return getBookmarks().indexOf(questionText) !== -1;
-}
-
-function toggleBookmarkInQuiz() {
-    const q    = currentQuiz[currentIndex];
-    const text = q.question.trim();
-    let bookmarks = getBookmarks();
-    const i    = bookmarks.indexOf(text);
-    const nowMarked = (i === -1);
-
-    if (nowMarked) {
-        bookmarks.push(text);
-    } else {
-        bookmarks.splice(i, 1);
-    }
-    saveBookmarks(bookmarks);
-    updateBookmarkBtn(nowMarked);
-}
-
-function updateBookmarkBtn(isMarked) {
-    const btn = document.getElementById('bookmark-btn');
-    if (isMarked) {
-        btn.textContent = '⭐ Đã đánh dấu câu khó';
-        btn.classList.add('bookmarked');
-    } else {
-        btn.textContent = '☆ Đánh dấu câu khó';
-        btn.classList.remove('bookmarked');
-    }
-}
-
-/* ===================================================================
-   TÍNH NĂNG 7: PHÂN HỆ QUẢN LÝ LỊCH SỬ ÔN TẬP GẦN ĐÂY
-=================================================================== */
-function getHistory() {
-    try {
-        return JSON.parse(localStorage.getItem(LS.HISTORY)) || [];
-    } catch(e) { return []; }
-}
-
-function saveToHistory(item) {
-    let history = getHistory();
-    history.unshift(item); // Đẩy kết quả thi mới nhất lên vị trí hàng đầu
-    if (history.length > 15) history = history.slice(0, 15); // Lưu tối đa 15 dòng lịch sử gần nhất
-    try {
-        localStorage.setItem(LS.HISTORY, JSON.stringify(history));
-    } catch(e) {}
-}
-
 function renderHistory() {
     const wrap = document.getElementById('history-table-wrap');
-    if (!wrap) return;
-
-    const history = getHistory();
-    if (history.length === 0) {
-        wrap.innerHTML = '<div class="no-history">Chưa có dữ liệu lịch sử. Đồng chí hãy hoàn thành lượt thi đầu tiên để ghi nhận thành tích!</div>';
-        return;
-    }
-
-    let html = `
-        <table class="history-table">
-            <thead>
-                <tr>
-                    <th>Ngày giờ</th>
-                    <th>Họ tên</th>
-                    <th>Đơn vị</th>
-                    <th>Điểm số</th>
-                    <th>Tỷ lệ</th>
-                    <th>TG dùng</th>
-                </tr>
-            </thead>
-            <tbody>`;
-
-    history.forEach(h => {
-        const pct   = Math.round((h.score / h.total) * 100);
-        const cls   = pct >= 50 ? 'score-good' : 'score-bad';
-        const mUsed = Math.floor(h.timeUsed / 60);
-        const sUsed = h.timeUsed % 60;
-        const timeStr = `${mUsed}:${sUsed < 10 ? '0' : ''}${sUsed}`;
-
-        html += `
-            <tr>
-                <td>${h.date}</td>
-                <td>${escapeHtml(h.nickname)}</td>
-                <td>${escapeHtml(h.donvi)}</td>
-                <td class="${cls}">${h.score}/${h.total}</td>
+    try {
+        const history = localStorage.getItem(STORAGE_HIST_KEY);
+        const list = history ? JSON.parse(history) : [];
+        if(list.length === 0) {
+            wrap.innerHTML = `<div class="no-history">Chưa có dữ liệu lịch sử kiểm tra nào được ghi nhận.</div>`; return;
+        }
+        let html = `<table class="history-table"><thead><tr><th>Người dùng</th><th>Đơn vị</th><th>Kết quả đúng</th><th>Tỷ lệ đúng</th><th>Thời gian</th><th>Ngày thi</th></tr></thead><tbody>`;
+        list.forEach(r => {
+            const pct = r.total > 0 ? Math.round((r.score / r.total) * 100) : 0;
+            const cls = pct >= 75 ? "score-good" : (pct < 50 ? "score-bad" : "");
+            const m = Math.floor(r.timeUsed / 60); const s = r.timeUsed % 60;
+            html += `<tr>
+                <td style="font-weight:bold;text-align:left">${escapeHtml(r.name)}</td>
+                <td>${escapeHtml(r.donvi)}</td>
+                <td class="${cls}" style="font-size:14px">${r.score}/${r.total}</td>
                 <td class="${cls}">${pct}%</td>
-                <td>${timeStr}</td>
+                <td>${m}m${s}s</td>
+                <td style="color:#888; font-size:11px">${r.date}</td>
             </tr>`;
-    });
-
-    html += '</tbody></table>';
-    wrap.innerHTML = html;
+        });
+        html += `</tbody></table>`;
+        wrap.innerHTML = html;
+    } catch(e) { wrap.innerHTML = `<div class="no-history">Lỗi tải dữ liệu lịch sử.</div>`; }
 }
 
 function clearHistory() {
-    if (confirm('Đồng chí có chắc chắn muốn thực hiện xóa toàn bộ lịch sử ôn tập gần đây lưu trên máy này không?')) {
-        localStorage.removeItem(LS.HISTORY);
+    if(confirm("Đồng chí có chắc chắn muốn xóa toàn bộ lịch sử ôn tập trên máy tính này không?")) {
+        localStorage.removeItem(STORAGE_HIST_KEY);
         renderHistory();
-        updateTopRankBanner();
+        showTopRecordBanner();
     }
 }
 
-/* ===================================================================
-   TÍNH NĂNG BANNER VINH DANH THÀNH TÍCH CAO NHẤT (TOP 1)
-=================================================================== */
-function updateTopRankBanner() {
-    const banner = document.getElementById('top-rank-banner');
-    const userEl = document.getElementById('top-rank-user');
-    const scoreEl = document.getElementById('top-rank-score');
-    
-    if (!banner) return;
-    
-    const history = getHistory();
-    if (history.length === 0) {
-        banner.style.display = "none";
-        return;
-    }
-    
-    // Thuật toán lọc tìm kiếm bản ghi đạt thành tích Top 1 có điểm số tỷ lệ % cao nhất
-    let topRecord = history[0];
-    let topPct = topRecord.score / topRecord.total;
-    
-    for (let i = 1; i < history.length; i++) {
-        let currentPct = history[i].score / history[i].total;
-        if (currentPct > topPct) {
-            topPct = currentPct;
-            topRecord = history[i];
-        } else if (currentPct === topPct) {
-            // Nếu bằng tỷ lệ %, ưu tiên bản ghi nào hoàn thành bài thi với thời gian ngắn ít hơn
-            if (history[i].timeUsed < topRecord.timeUsed) {
-                topRecord = history[i];
+function showTopRecordBanner() {
+    const banner = document.getElementById('top-record-banner');
+    const userEl = document.getElementById('top-record-user');
+    const scoreEl = document.getElementById('top-record-score');
+    try {
+        const history = localStorage.getItem(STORAGE_HIST_KEY);
+        const list = history ? JSON.parse(history) : [];
+        if (list.length === 0) { banner.style.display = "none"; return; }
+        
+        let topRecord = list[0];
+        let topPct = topRecord.total > 0 ? (topRecord.score / topRecord.total) : 0;
+        for (let i = 1; i < list.length; i++) {
+            let curPct = list[i].total > 0 ? (list[i].score / list[i].total) : 0;
+            if (curPct > topPct) { topRecord = list[i]; topPct = curPct; } 
+            else if (curPct === topPct) {
+                if (list[i].timeUsed < topRecord.timeUsed) { topRecord = list[i]; topPct = curPct; }
             }
         }
-    }
-    
-    // Thực thi hiển thị banner vinh danh kỷ lục
-    userEl.innerHTML = `<b>${escapeHtml(topRecord.nickname)}</b> <span style="color:#7f8c8d; font-size:13px;">(${escapeHtml(topRecord.donvi)})</span>`;
-    const mUsed = Math.floor(topRecord.timeUsed / 60);
-    const sUsed = topRecord.timeUsed % 60;
-    scoreEl.innerHTML = `🏆 Lập kỷ lục: ${topRecord.score}/${topRecord.total} câu (${Math.round(topPct*100)}%) - ⏱ ${mUsed}m${sUsed}s`;
-    banner.style.display = "block";
+        userEl.innerHTML = `Đồng chí: <span>${escapeHtml(topRecord.name)} (${escapeHtml(topRecord.donvi)})</span>`;
+        const mUsed = Math.floor(topRecord.timeUsed / 60); const sUsed = topRecord.timeUsed % 60;
+        scoreEl.innerHTML = `Kết quả: ${topRecord.score}/${topRecord.total} câu (${Math.round(topPct*100)}%) - ⏱ ${mUsed}m${sUsed}s`;
+        banner.style.display = "block";
+    } catch(e) { banner.style.display = "none"; }
 }
 
 /* ===================================================================
-   TIỆN ÍCH BỔ TRỢ HỆ THỐNG
+   ÂM THANH & TIỆN ÍCH
 =================================================================== */
 function playSound(id) {
     if (!isAudioMuted) {
         try { 
             const sound = document.getElementById(id);
-            if (sound) {
-                sound.currentTime = 0; // Tua nhanh về đầu âm thanh để tránh trễ phát âm khi nhấn liên tục
-                sound.play(); 
-            }
-        } catch(e) { console.log(e); }
+            if (sound) { sound.currentTime = 0; sound.play().catch(err => console.log(err)); }
+        } catch(e) {}
     }
 }
 
 function toggleAudio() {
     isAudioMuted = !isAudioMuted;
-    const btn    = document.getElementById('audio-toggle-btn');
+    const btn = document.getElementById('audio-toggle-btn');
     if (btn) {
-        btn.innerText          = isAudioMuted ? '🔇 ÂM THANH: TẮT' : '🔊 ÂM THANH: BẬT';
+        btn.innerText = isAudioMuted ? '🔇 TẮT' : '🔊 BẬT';
         btn.style.backgroundColor = isAudioMuted ? '#9e9e9e' : '#616161';
     }
 }
 
-// Hàm chống tấn công mã độc XSS khi đưa chuỗi dữ liệu đầu vào HTML
 function escapeHtml(str) {
     if (!str) return '';
-    return str
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;');
+    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
 }
 </script>
 </body>
