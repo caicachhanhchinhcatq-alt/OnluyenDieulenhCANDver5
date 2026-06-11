@@ -1049,12 +1049,34 @@ function saveRecordToHistory(score, total, timeUsed) {
         let list = history ? JSON.parse(history) : [];
         
         const newRecord = {
-            name: currentUser, donvi: currentDonvi, score: score, total: total,
-            timeUsed: timeUsed, date: new Date().toLocaleString('vi-VN')
+            name: currentUser, 
+            donvi: currentDonvi, 
+            score: score, 
+            total: total,
+            timeUsed: timeUsed, 
+            date: new Date().toLocaleString('vi-VN')
         };
+        
         list.unshift(newRecord);
         if(list.length > 30) list = list.slice(0, 30);
         localStorage.setItem(STORAGE_HIST_KEY, JSON.stringify(list));
+
+        // --- BỔ SUNG: Gửi dữ liệu lên Google Sheets ---
+        fetch("https://script.google.com/macros/s/AKfycbx0LqCEfvg1d7JYdRdulDY5ex5TT1bAB1eEQ5whwu_Uv8XVx7kzw9KkqlI4XXhfVa3i/exec", {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                date: newRecord.date,
+                name: newRecord.name,
+                donvi: newRecord.donvi,
+                scoreString: newRecord.score + "/" + newRecord.total,
+                pct: Math.round((newRecord.score / newRecord.total) * 100) + "%",
+                timeString: Math.floor(newRecord.timeUsed / 60) + "m" + (newRecord.timeUsed % 60) + "s"
+            })
+        }).catch(err => console.log("Lỗi gửi lên Sheet:", err));
+        // ----------------------------------------------
+
     } catch(e) {}
 }
 
