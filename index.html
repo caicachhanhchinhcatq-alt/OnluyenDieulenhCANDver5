@@ -354,6 +354,14 @@
                 <div id="history-table-wrap"></div>
             </div>
         </div>
+
+        <div id="ranking-section" style="margin-top: 30px; padding: 15px; background: #fff; border: 1px solid #ddd; border-radius: 8px;">
+          <h3 style="text-align: center; color: #d32f2f;">🏆 BẢNG XẾP HẠNG TRỰC TUYẾN</h3>
+          <div id="ranking-list" style="overflow-x: auto;">
+          Đang tải dữ liệu từ máy chủ...
+          </div>
+        </div>
+
     </div>
 
     <div id="mode-screen" class="hidden">
@@ -1043,42 +1051,90 @@ function finishQuiz() {
     document.getElementById('result-screen').classList.remove('hidden');
 }
 
+// --- Hàm lưu điểm (Đã tích hợp gửi lên Sheet) ---
 function saveRecordToHistory(score, total, timeUsed) {
     try {
         const history = localStorage.getItem(STORAGE_HIST_KEY);
         let list = history ? JSON.parse(history) : [];
-        
         const newRecord = {
-            name: currentUser, 
-            donvi: currentDonvi, 
-            score: score, 
-            total: total,
-            timeUsed: timeUsed, 
-            date: new Date().toLocaleString('vi-VN')
+            name: currentUser, donvi: currentDonvi, score: score, total: total,
+            timeUsed: timeUsed, date: new Date().toLocaleString('vi-VN')
         };
-        
         list.unshift(newRecord);
         if(list.length > 30) list = list.slice(0, 30);
         localStorage.setItem(STORAGE_HIST_KEY, JSON.stringify(list));
 
-        // --- BỔ SUNG: Gửi dữ liệu lên Google Sheets ---
-        fetch("https://script.google.com/macros/s/AKfycbx0LqCEfvg1d7JYdRdulDY5ex5TT1bAB1eEQ5whwu_Uv8XVx7kzw9KkqlI4XXhfVa3i/exec", {
+        // Gửi lên Google Sheets
+        fetch("https://script.google.com/macros/s/AKfycby_V-7bWlWDYQBPxsRwdMeEYK_thNOp_ijlCB73NIm6IhvCRni7VicEHuafO_RzTIAG/exec", {
             method: "POST",
             mode: "no-cors",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                date: newRecord.date,
-                name: newRecord.name,
-                donvi: newRecord.donvi,
+                date: newRecord.date, name: newRecord.name, donvi: newRecord.donvi,
                 scoreString: newRecord.score + "/" + newRecord.total,
                 pct: Math.round((newRecord.score / newRecord.total) * 100) + "%",
                 timeString: Math.floor(newRecord.timeUsed / 60) + "m" + (newRecord.timeUsed % 60) + "s"
             })
-        }).catch(err => console.log("Lỗi gửi lên Sheet:", err));
-        // ----------------------------------------------
-
+        }).catch(err => console.log(err));
     } catch(e) {}
 }
+
+// --- Hàm lấy dữ liệu Ranking từ Sheet ---
+function loadOnlineRanking() {
+    const RANKING_URL = "URL_CỦA_BẠN_ĐÃ_COPY"; // Thay link vào đây
+    
+    fetch(RANKING_URL)
+        .then(response => response.json())
+        .then(data => {
+            // 1. Nhóm dữ liệu theo Tên người dùng
+            let userMap = {};
+            data.forEach(item => {
+                let [correct, total] = item.scoreString.split('/').map(Number);
+                if (!userMap[item.name]) {
+                    userMap[item.name] = { name: item.name, donvi: item.donvi, totalCorrect: 0, totalQuestions: 0 };
+                }
+                userMap[item.name].totalCorrect += (correct || 0);
+                userMap[item.name].totalQuestions += (total || 1);
+            });
+
+            // 2. Chuyển từ object sang mảng và tính tỷ lệ
+            let rankingData = Object.values(userMap).map(u => {
+                u.ratio = (u.totalCorrect / u.totalQuestions) * 100;
+                return u;
+            });
+
+            // 3. Sắp xếp: Tỷ lệ cao nhất lên trước
+            rankingData.sort((a, b) => b.ratio - a.ratio);
+
+            // 4. Hiển thị
+            let html = '<table class="history-table" style="width:100%; border-collapse: collapse;">';
+            html += '<tr style="background:#eee;"><th>Hạng</th><th>Người dùng</th><th>Đơn vị</th><th>Tỷ lệ đúng</th></tr>';
+            rankingData.slice(0, 10).forEach((u, i) => {
+                html += `<tr>
+                    <td>${i === 0 ? '👑' : i + 1}</td>
+                    <td>${escapeHtml(u.name)}</td>
+                    <td>${escapeHtml(u.donvi)}</td>
+                    <td>${u.ratio.toFixed(1)}% (${u.totalCorrect}/${u.totalQuestions})</td>
+                </tr>`;
+            });
+            html += '</table>';
+            
+            const el = document.getElementById('ranking-list');
+            if (el) el.innerHTML = html;
+        })
+        .catch(err => {
+            console.log("Lỗi:", err);
+            const el = document.getElementById('ranking-list');
+            if (el) el.innerText = "Chưa có dữ liệu xếp hạng.";
+        });
+}
+
+// Tự động gọi khi mở web
+// Thay thế window.onload = ... bằng đoạn này:
+document.addEventListener('DOMContentLoaded', function() {
+    loadOnlineRanking();
+    setInterval(loadOnlineRanking, 60000);
+});
 
 function backToMode() {
     document.getElementById('result-screen').classList.add('hidden');
@@ -1258,6 +1314,49 @@ function toggleAudio() {
 function escapeHtml(str) {
     if (!str) return '';
     return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+}
+
+// Kết thúc phần JS cũ bằng cách đóng thẻ script
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    loadOnlineRanking();
+    setInterval(loadOnlineRanking, 60000);
+});
+
+function loadOnlineRanking() {
+    const RANKING_URL = "URL_CỦA_BẠN_ĐÃ_COPY"; // THAY LINK VÀO ĐÂY
+    
+    fetch(RANKING_URL)
+        .then(response => response.json())
+        .then(data => {
+            data.sort((a, b) => {
+                let scoreA = parseInt(a.scoreString.split('/')[0]) || 0;
+                let scoreB = parseInt(b.scoreString.split('/')[0]) || 0;
+                return scoreB - scoreA;
+            });
+
+            let html = '<table class="history-table" style="width:100%; border-collapse: collapse; margin-top:10px;">';
+            html += '<tr style="background:#eee;"><th>Top</th><th>Người dùng</th><th>Đơn vị</th><th>Kết quả</th></tr>';
+            data.slice(0, 10).forEach((user, index) => {
+                html += `<tr>
+                    <td style="padding:5px;">${index === 0 ? '👑' : index + 1}</td>
+                    <td style="padding:5px;">${escapeHtml(user.name)}</td>
+                    <td style="padding:5px;">${escapeHtml(user.donvi)}</td>
+                    <td style="padding:5px;">${user.scoreString}</td>
+                </tr>`;
+            });
+            html += '</table>';
+            
+            const el = document.getElementById('ranking-list');
+            if (el) el.innerHTML = html;
+        })
+        .catch(err => {
+            console.log("Lỗi tải ranking:", err);
+            const el = document.getElementById('ranking-list');
+            if (el) el.innerText = "Chưa có dữ liệu online.";
+        });
 }
 </script>
 </body>
