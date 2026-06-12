@@ -1231,30 +1231,36 @@ function closeReview() {
    LỊCH SỬ BẢNG ĐIỂM
 =================================================================== */
 function renderHistory() {
-    const wrap = document.getElementById('history-table-wrap');
-    try {
-        const history = localStorage.getItem(STORAGE_HIST_KEY);
-        const list = history ? JSON.parse(history) : [];
-        if(list.length === 0) {
-            wrap.innerHTML = `<div class="no-history">Chưa có dữ liệu lịch sử kiểm tra nào được ghi nhận.</div>`; return;
-        }
-        let html = `<table class="history-table"><thead><tr><th>Người dùng</th><th>Đơn vị</th><th>Kết quả đúng</th><th>Tỷ lệ đúng</th><th>Thời gian</th><th>Ngày thi</th></tr></thead><tbody>`;
-        list.forEach(r => {
-            const pct = r.total > 0 ? Math.round((r.score / r.total) * 100) : 0;
-            const cls = pct >= 75 ? "score-good" : (pct < 50 ? "score-bad" : "");
-            const m = Math.floor(r.timeUsed / 60); const s = r.timeUsed % 60;
-            html += `<tr>
-                <td style="font-weight:bold;text-align:left">${escapeHtml(r.name)}</td>
-                <td>${escapeHtml(r.donvi)}</td>
-                <td class="${cls}" style="font-size:14px">${r.score}/${r.total}</td>
-                <td class="${cls}">${pct}%</td>
-                <td>${m}m${s}s</td>
-                <td style="color:#888; font-size:11px">${r.date}</td>
-            </tr>`;
+    const HISTORY_URL = "https://script.google.com/macros/s/AKfycby_V-7bWlWDYQBPxsRwdMeEYK_thNOp_ijlCB73NIm6IhvCRni7VicEHuafO_RzTIAG/exec";
+
+    // Hiện thông báo đang tải
+    const container = document.getElementById('history-container'); // Thay ID này bằng ID phần chứa bảng lịch sử của bạn
+    if (container) container.innerHTML = "Đang tải lịch sử chung...";
+
+    fetch(HISTORY_URL)
+        .then(response => response.json())
+        .then(data => {
+            // Dữ liệu từ Sheet trả về là 1 mảng, ta đảo ngược để người mới thi lên đầu
+            let html = '<table class="history-table" style="width:100%; border-collapse: collapse;">';
+            html += '<tr style="background:#eee;"><th>Ngày thi</th><th>Người dùng</th><th>Đơn vị</th><th>Kết quả</th></tr>';
+            
+            // Lấy 30 bản ghi mới nhất
+            data.reverse().slice(0, 30).forEach(item => {
+                html += `<tr>
+                    <td style="padding:5px;">${item.date}</td>
+                    <td style="padding:5px;">${escapeHtml(item.name)}</td>
+                    <td style="padding:5px;">${escapeHtml(item.donvi)}</td>
+                    <td style="padding:5px;">${item.scoreString}</td>
+                </tr>`;
+            });
+            html += '</table>';
+            
+            if (container) container.innerHTML = html;
+        })
+        .catch(err => {
+            console.log("Lỗi tải lịch sử:", err);
+            if (container) container.innerHTML = "Không thể tải lịch sử chung.";
         });
-        html += `</tbody></table>`;
-        wrap.innerHTML = html;
-    } catch(e) { wrap.innerHTML = `<div class="no-history">Lỗi tải dữ liệu lịch sử.</div>`; }
 }
 
 function clearHistory() {
@@ -1356,6 +1362,60 @@ function loadOnlineRanking() {
             console.log("Lỗi tải ranking:", err);
             const el = document.getElementById('ranking-list');
             if (el) el.innerText = "Chưa có dữ liệu online.";
+        });
+}
+
+<div id="history-section">
+    <h3>Lịch sử ôn tập gần đây</h3>
+    <div id="history-list"></div> 
+</div>
+
+<div id="ranking-section" style="margin-top: 30px; padding: 15px; border: 1px solid #ddd; border-radius: 8px;">
+    <h3>🏆 BẢNG XẾP HẠNG TOÀN ĐỘI</h3>
+    <div id="ranking-list">Đang tải dữ liệu từ máy chủ...</div>
+</div>
+
+<script>
+// 1. Chạy khi trang web tải xong
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof renderHistory === 'function') {
+        renderHistory();
+    }
+    loadOnlineRanking();
+});
+
+// 2. Hàm xếp hạng
+function loadOnlineRanking() {
+    const RANKING_URL = "https://script.google.com/macros/s/AKfycby_V-7bWlWDYQBPxsRwdMeEYK_thNOp_ijlCB73NIm6IhvCRni7VicEHuafO_RzTIAG/exec";
+    
+    fetch(RANKING_URL)
+        .then(res => res.json())
+        .then(data => {
+            let userMap = {};
+            data.forEach(item => {
+                let [c, t] = item.scoreString ? item.scoreString.split('/').map(Number) : [0, 1];
+                if (!userMap[item.name]) userMap[item.name] = { name: item.name, donvi: item.donvi, correct: 0, total: 0 };
+                userMap[item.name].correct += (c || 0);
+                userMap[item.name].total += (t || 0);
+            });
+
+            let ranking = Object.values(userMap).map(u => ({
+                ...u, pct: u.total > 0 ? (u.correct / u.total) * 100 : 0
+            }));
+            ranking.sort((a, b) => b.pct - a.pct);
+
+            let html = '<table class="history-table" style="width:100%; border-collapse:collapse;">';
+            html += '<tr style="background:#eee;"><th>Hạng</th><th>Người dùng</th><th>Đơn vị</th><th>Tỷ lệ</th></tr>';
+            ranking.slice(0, 10).forEach((u, i) => {
+                html += `<tr><td>${i === 0 ? '👑' : i + 1}</td><td>${escapeHtml(u.name)}</td><td>${escapeHtml(u.donvi)}</td><td><b>${u.pct.toFixed(1)}%</b></td></tr>`;
+            });
+            html += '</table>';
+            
+            const el = document.getElementById('ranking-list');
+            if (el) el.innerHTML = html;
+        })
+        .catch(err => {
+            console.log("Ranking error:", err);
         });
 }
 </script>
