@@ -315,6 +315,42 @@
         .review-q-text { font-size: 15px; }
         .review-answer { font-size: 14px; }
     }
+
+/* ===== TÍNH NĂNG ỦNG HỘ TÁC GIẢ (DONATE MODAL) ===== */
+    .donate-modal {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0,0,0,0.6); display: flex; justify-content: center;
+        align-items: center; z-index: 9999; opacity: 0; pointer-events: none;
+        transition: all 0.3s ease;
+    }
+    .donate-modal.show { opacity: 1; pointer-events: auto; }
+    .donate-box {
+        background: white; padding: 25px; border-radius: 12px;
+        max-width: 440px; width: 90%; text-align: center;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        border-top: 6px solid var(--primary);
+        animation: modalScale 0.3s ease;
+        font-family: 'Times New Roman', Times, serif;
+    }
+    @keyframes modalScale {
+        from { transform: scale(0.8); opacity: 0; }
+        to { transform: scale(1); opacity: 1; }
+    }
+    .donate-qr {
+        width: 250px; height: 250px; margin: 15px auto;
+        object-fit: contain; display: block;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        border-radius: 6px;
+    }
+    .btn-donate-trigger {
+        background: linear-gradient(135deg, #ff9800, #f57c00);
+        color: #fff; border: none; padding: 6px 14px; border-radius: 5px;
+        font-size: 13px; font-weight: bold; cursor: pointer;
+        transition: all 0.2s; margin-top: 6px;
+        font-family: 'Times New Roman', Times, serif;
+    }
+    .btn-donate-trigger:hover { background: linear-gradient(135deg, #f57c00, #e65100); }
+
     </style>
     <script src="questions.js"></script>
 </head>
@@ -504,9 +540,10 @@
     </div>
 
     <div class="copyright-box">
-       <span class="copyright-title">PHẦN MỀM ÔN LUYỆN ĐIỀU LỆNH CAND © 2026</span><br>
-       Tác giả: <span style="font-weight:bold; color:#333">Nguyễn Việt Khánh - PV01 Tuyên Quang</span> | Version 9.5 Pro</span><br>
-       Hỗ trợ: <span style="font-weight:bold;">0328.833.388 (Zalo)</span> | <span style="color:#0066cc;">caicachhanhchinhcatq@gmail.com</span><br>       
+        <span class="copyright-title">PHẦN MỀM ÔN LUYỆN ĐIỀU LỆNH CAND © 2026</span><br>
+        Tác giả: <span style="font-weight:bold; color:#333">Nguyễn Việt Khánh - PV01 Tuyên Quang</span> | Version 9.5<br>
+        Hỗ trợ: <span style="font-weight:bold;">0328.833.388 (Zalo)</span> | <span style="color:#0066cc;">caicachhanhchinhcatq@gmail.com</span><br>
+        <button class="btn-donate-trigger" onclick="openDonateModal()">☕ Ủng hộ tác giả</button>
     </div>
 
 </div>
@@ -1470,6 +1507,40 @@ function fetchDataFromGoogleSheet() {
             document.getElementById('ranking-list').innerHTML = rankHtml;
         });
 }
+/* ===================================================================
+   CẤU TRÚC ĐIỀU KHIỂN BẢNG ỦNG HỘ (DONATE MODAL) LOGIC
+=================================================================== */
+function toggleDonateModal(isOpen) {
+    const modal = document.getElementById('donate-modal');
+    if (modal) {
+        if (isOpen) modal.classList.add('show');
+        else modal.classList.remove('show');
+    }
+}
+
+function openDonateModal() {
+    toggleDonateModal(true);
+}
+
+function closeDonateModal(event) {
+    // Tự động đóng bảng nếu người dùng click ra vùng trống bên ngoài
+    toggleDonateModal(false);
+}
 </script>
+<div id="donate-modal" class="donate-modal" onclick="closeDonateModal(event)">
+    <div class="donate-box" onclick="event.stopPropagation()">
+        
+        <h3 style="color: var(--primary); margin-top: 5px; margin-bottom: 15px; text-transform: uppercase; font-size: 18px; letter-spacing: 0.5px; font-weight: bold;">Đồng hành cùng tác giả</h3>
+        
+        <div style="text-align: justify; color: #212121; font-size: 15px; line-height: 1.6; margin-bottom: 20px; text-indent: 20px; font-style: italic; background-color: #fff8e1; padding: 12px; border-radius: 6px; border-left: 4px solid #ffb300;">
+            ☕ Nếu phần mềm giúp các đồng chí ôn luyện thuận lợi hơn, nhớ thêm được nhiều kiến thức và tự tin hơn trong kỳ kiểm tra năm nay, biết đâu tác giả xứng đáng được các đồng chí mời một ly cà phê!
+        </div>
+        
+        <img class="donate-qr" src="QR.png" alt="Mã QR Chuyển khoản Agribank">
+        <div style="margin-top: -5px; margin-bottom: 20px; font-size: 13px; color: #757575; font-style: italic;">(Quét mã QR)</div>
+        
+        <button class="btn-sm" style="background:#616161; color:white; padding:9px 20px; font-size:14px; border:none; width:100%; cursor: pointer;" onclick="toggleDonateModal(false)">Đóng lại</button>
+    </div>
+</div>
 </body>
 </html>
