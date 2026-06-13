@@ -350,18 +350,27 @@
 <div id="online-data-container" style="margin-top: 30px; background: #fff; padding: 15px; border-radius: 8px; border: 1px solid #ddd;">
     
     <h3 style="color: var(--primary); text-align: center; border-bottom: 2px solid var(--primary); padding-bottom: 5px; text-transform: none;">
-        Lịch sử ôn tập
+        LỊCH SỬ ÔN TẬP
     </h3>
     <div id="history-list" style="overflow-x: auto; margin-bottom: 30px;">
         <p style="text-align: center; color: #666;">🔄 Đang tải dữ liệu lịch sử...</p>
     </div>
 
-    <h3 style="color: var(--primary); text-align: center; border-bottom: 2px solid var(--primary); padding-bottom: 5px; text-transform: none;">
-        Bảng xếp hạng
+   <div style="text-align: center; margin-bottom: 15px;">
+    <h3 style="color: var(--primary); margin: 0; padding-bottom: 5px; text-transform: none;">
+        BẢNG XẾP HẠNG (RANKING)
     </h3>
-    <div id="ranking-list" style="overflow-x: auto;">
-        <p style="text-align: center; color: #666;">🔄 Đang tính toán bảng xếp hạng...</p>
+    
+    <div style="font-weight: bold; color: #004d40; font-size: 14px; margin-top: 5px; margin-bottom: 8px;">
+        🎯 TIÊU CHUẨN: ≥ 5 LẦN THI/ÔN LUYỆN
     </div>
+    
+    <div style="border-bottom: 2px solid var(--primary); width: 100%;"></div>
+</div>
+
+<div id="ranking-list" style="overflow-x: auto;">
+    <p style="text-align: center; color: #666;">🔄 Đang tính toán bảng xếp hạng...</p>
+</div>
 </div>
 
     </div>
@@ -496,7 +505,7 @@
 
     <div class="copyright-box">
        <span class="copyright-title">PHẦN MỀM ÔN LUYỆN ĐIỀU LỆNH CAND © 2026</span><br>
-       Tác giả: <span style="font-weight:bold; color:#333">Nguyễn Việt Khánh</span> | Version 9.5 Pro</span><br>
+       Tác giả: <span style="font-weight:bold; color:#333">Nguyễn Việt Khánh - PV01 Tuyên Quang</span> | Version 9.5 Pro</span><br>
        Hỗ trợ: <span style="font-weight:bold;">0328.833.388 (Zalo)</span> | <span style="color:#0066cc;">caicachhanhchinhcatq@gmail.com</span><br>       
     </div>
 
@@ -1390,8 +1399,8 @@ function fetchDataFromGoogleSheet() {
             histHtml += '</table>';
             document.getElementById('history-list').innerHTML = histHtml;
 
-            // ---------------------------------------------------------------
-            // PHẦN 2: HIỂN THỊ "Bảng xếp hạng"
+           // ---------------------------------------------------------------
+            // PHẦN 2: HIỂN THỊ "Bảng xếp hạng" (Lọc điều kiện thi tối thiểu 5 lần)
             // ---------------------------------------------------------------
             let userMap = {};
             data.forEach(item => {
@@ -1415,35 +1424,50 @@ function fetchDataFromGoogleSheet() {
                 userMap[currentName].totalQuestions += (total || 0);
             });
 
-            let rankingArray = Object.values(userMap).map(u => {
-                u.finalPct = u.totalQuestions > 0 ? (u.totalCorrect / u.totalQuestions) * 100 : 0;
-                return u;
-            });
+            // Chuyển đối tượng thành mảng và LỌC: Chỉ giữ lại những người đã thi từ 5 lần trở lên
+            let rankingArray = Object.values(userMap)
+                .filter(u => u.examCount >= 5) // 🔥 Điều kiện lọc: Thi ít nhất 5 lần mới được xét hạng
+                .map(u => {
+                    u.finalPct = u.totalQuestions > 0 ? (u.totalCorrect / u.totalQuestions) * 100 : 0;
+                    return u;
+                });
 
             rankingArray.sort((a, b) => b.finalPct - a.finalPct);
 
-            let rankHtml = '<table class="history-table" style="width:100%; border-collapse:collapse; text-align:center;">';
+            // 🛠️ CHỈ TẠO DÒNG TIÊU CHUẨN (KHÔNG TẠO TIÊU ĐỀ THỪA)
+            // margin-top: -8px giúp đẩy dòng chữ lên sát ngay dưới chữ Bảng xếp hạng gốc
+            // margin-bottom: 12px tạo khoảng cách thoáng với thanh gạch ngang màu đỏ bên dưới
+            let rankHtml = '';
+
+            rankHtml += '<table class="history-table" style="width:100%; border-collapse:collapse; text-align:center;">';
             rankHtml += '<tr style="background:#e8f5e9;"><th>Hạng</th><th>Người dùng</th><th>Số lần thi</th><th>Số câu đúng</th><th>Tổng số câu làm</th><th>Tỷ lệ đúng</th></tr>';
 
-            rankingArray.slice(0, 10).forEach((user, index) => {
-                let medal = index === 0 ? '👑 Hạng 1' : (index === 1 ? '🥈 Hạng 2' : (index === 2 ? '🥉 Hạng 3' : index + 1));
+            // Nếu sau khi lọc mà có người đủ điều kiện, hiển thị Top 10
+            if (rankingArray.length > 0) {
+                rankingArray.slice(0, 10).forEach((user, index) => {
+                    let medal = index === 0 ? '👑 Hạng 1' : (index === 1 ? '🥈 Hạng 2' : (index === 2 ? '🥉 Hạng 3' : index + 1));
+                    rankHtml += `<tr>
+                        <td style="padding:8px; border-bottom:1px solid #ddd; font-weight:bold;">${medal}</td>
+                        <td style="padding:8px; border-bottom:1px solid #ddd; text-align:left;"><b>${escapeHtml(user.name)}</b> <small style="color:#666;">(${escapeHtml(user.donvi)})</small></td>
+                        <td style="padding:8px; border-bottom:1px solid #ddd; color:blue; font-weight:bold;">${user.examCount} lần</td>
+                        <td style="padding:8px; border-bottom:1px solid #ddd; color:green;">${user.totalCorrect}</td>
+                        <td style="padding:8px; border-bottom:1px solid #ddd;">${user.totalQuestions}</td>
+                        <td style="padding:8px; border-bottom:1px solid #ddd; font-size:16px; color:var(--wrong);"><b>${user.finalPct.toFixed(1)}%</b></td>
+                    </tr>`;
+                });
+            } else {
+                // Trường hợp chưa có ai thi đủ 5 lần
                 rankHtml += `<tr>
-                    <td style="padding:8px; border-bottom:1px solid #ddd; font-weight:bold;">${medal}</td>
-                    <td style="padding:8px; border-bottom:1px solid #ddd; text-align:left;"><b>${escapeHtml(user.name)}</b> <small style="color:#666;">(${escapeHtml(user.donvi)})</small></td>
-                    <td style="padding:8px; border-bottom:1px solid #ddd;">${user.examCount} lần</td>
-                    <td style="padding:8px; border-bottom:1px solid #ddd; color:green; font-weight:bold;">${user.totalCorrect}</td>
-                    <td style="padding:8px; border-bottom:1px solid #ddd;">${user.totalQuestions}</td>
-                    <td style="padding:8px; border-bottom:1px solid #ddd; font-size:16px; color:var(--wrong);"><b>${user.finalPct.toFixed(1)}%</b></td>
+                    <td colspan="6" style="padding:25px; color:#7f8c8d; font-style:italic; background: #fafafa;">
+                        ⚠️ Chưa có dữ liệu xếp hạng.<br>
+                        <span style="font-size: 13px; color: #95a5a6;">(Yêu cầu người dùng cần hoàn thành tối thiểu 5 lượt thi để kích hoạt hiển thị thứ hạng)</span>
+                    </td>
                 </tr>`;
-            });
+            }
             rankHtml += '</table>';
+            
+            // Đổ toàn bộ nội dung bao gồm cả dòng tiêu chuẩn và bảng vào vùng ranking-list
             document.getElementById('ranking-list').innerHTML = rankHtml;
-
-        })
-        .catch(err => {
-            console.error("Lỗi đồng bộ dữ liệu Google Sheet:", err);
-            document.getElementById('history-list').innerHTML = "<p style='text-align:center; color:red;'>⚠️ Không thể kết nối dữ liệu lịch sử trực tuyến.</p>";
-            document.getElementById('ranking-list').innerHTML = "<p style='text-align:center; color:red;'>⚠️ Không thể tính toán bảng xếp hạng trực tuyến.</p>";
         });
 }
 </script>
