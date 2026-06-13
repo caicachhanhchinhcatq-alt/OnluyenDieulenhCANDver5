@@ -345,22 +345,24 @@
                 <button onclick="login()" style="width:100%;margin-top:18px;padding:13px;font-size:17px;letter-spacing:1px">VÀO HỆ THỐNG</button>
             </div>
         </div>
-        <div class="history-wrap">
-            <div class="history-header">
-                <span class="history-title">📊 Lịch sử ôn tập gần đây</span>
-                <button class="btn-sm" onclick="clearHistory()">Xóa lịch sử</button>
-            </div>
-            <div class="history-scroll">
-                <div id="history-table-wrap"></div>
-            </div>
-        </div>
+ 
 
-        <div id="ranking-section" style="margin-top: 30px; padding: 15px; background: #fff; border: 1px solid #ddd; border-radius: 8px;">
-          <h3 style="text-align: center; color: #d32f2f;">🏆 BẢNG XẾP HẠNG TRỰC TUYẾN</h3>
-          <div id="ranking-list" style="overflow-x: auto;">
-          Đang tải dữ liệu từ máy chủ...
-          </div>
-        </div>
+<div id="online-data-container" style="margin-top: 30px; background: #fff; padding: 15px; border-radius: 8px; border: 1px solid #ddd;">
+    
+    <h3 style="color: var(--primary); text-align: center; border-bottom: 2px solid var(--primary); padding-bottom: 5px; text-transform: none;">
+        Lịch sử ôn tập
+    </h3>
+    <div id="history-list" style="overflow-x: auto; margin-bottom: 30px;">
+        <p style="text-align: center; color: #666;">🔄 Đang tải dữ liệu lịch sử...</p>
+    </div>
+
+    <h3 style="color: var(--primary); text-align: center; border-bottom: 2px solid var(--primary); padding-bottom: 5px; text-transform: none;">
+        Bảng xếp hạng
+    </h3>
+    <div id="ranking-list" style="overflow-x: auto;">
+        <p style="text-align: center; color: #666;">🔄 Đang tính toán bảng xếp hạng...</p>
+    </div>
+</div>
 
     </div>
 
@@ -494,7 +496,7 @@
 
     <div class="copyright-box">
        <span class="copyright-title">PHẦN MỀM ÔN LUYỆN ĐIỀU LỆNH CAND © 2026</span><br>
-       Tác giả: <span style="font-weight:bold; color:#333">Nguyễn Việt Khánh</span> | Version 7.0 Pro</span><br>
+       Tác giả: <span style="font-weight:bold; color:#333">Nguyễn Việt Khánh</span> | Version 9.5 Pro</span><br>
        Hỗ trợ: <span style="font-weight:bold;">0328.833.388 (Zalo)</span> | <span style="color:#0066cc;">caicachhanhchinhcatq@gmail.com</span><br>       
     </div>
 
@@ -1064,14 +1066,19 @@ function saveRecordToHistory(score, total, timeUsed) {
         if(list.length > 30) list = list.slice(0, 30);
         localStorage.setItem(STORAGE_HIST_KEY, JSON.stringify(list));
 
+        // 🛠️ ÉP CHUỖI VĂN BẢN TĨNH BẰNG DẤU NHÁY ĐƠN ĐỂ GOOGLE SHEET KHÔNG TỰ CHUYỂN THÀNH SỐ LỖI
+        const safeTextScore = "'" + newRecord.score + "/" + newRecord.total;
+
         // Gửi lên Google Sheets
         fetch("https://script.google.com/macros/s/AKfycby_V-7bWlWDYQBPxsRwdMeEYK_thNOp_ijlCB73NIm6IhvCRni7VicEHuafO_RzTIAG/exec", {
             method: "POST",
             mode: "no-cors",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                date: newRecord.date, name: newRecord.name, donvi: newRecord.donvi,
-                scoreString: newRecord.score + "/" + newRecord.total,
+                date: newRecord.date, 
+                name: newRecord.name, 
+                donvi: newRecord.donvi,
+                scoreString: safeTextScore, // Gửi chuỗi dạng văn bản tĩnh sang Sheet
                 pct: Math.round((newRecord.score / newRecord.total) * 100) + "%",
                 timeString: Math.floor(newRecord.timeUsed / 60) + "m" + (newRecord.timeUsed % 60) + "s"
             })
@@ -1297,7 +1304,7 @@ function showTopRecordBanner() {
 }
 
 /* ===================================================================
-   ÂM THANH & TIỆN ÍCH
+   ÂM THANH & TIỆN ÍCH (Tôn trọng và giữ nguyên bản gốc của bạn)
 =================================================================== */
 function playSound(id) {
     if (!isAudioMuted) {
@@ -1319,103 +1326,124 @@ function toggleAudio() {
 
 function escapeHtml(str) {
     if (!str) return '';
-    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
 }
 
-// Kết thúc phần JS cũ bằng cách đóng thẻ script
-</script>
-
-<script>
+/* ===================================================================
+   XỬ LÝ ĐỒNG BỘ TRÍCH XUẤT TỪ URL WEB APP GOOGLE SHEETS
+=================================================================== */
 document.addEventListener('DOMContentLoaded', function() {
-    loadOnlineRanking();
-    setInterval(loadOnlineRanking, 60000);
+    fetchDataFromGoogleSheet();
+    setInterval(fetchDataFromGoogleSheet, 60000); // Tự động làm mới dữ liệu sau mỗi phút
 });
 
-function loadOnlineRanking() {
-    const RANKING_URL = "URL_CỦA_BẠN_ĐÃ_COPY"; // THAY LINK VÀO ĐÂY
-    
-    fetch(RANKING_URL)
-        .then(response => response.json())
-        .then(data => {
-            data.sort((a, b) => {
-                let scoreA = parseInt(a.scoreString.split('/')[0]) || 0;
-                let scoreB = parseInt(b.scoreString.split('/')[0]) || 0;
-                return scoreB - scoreA;
-            });
+function fetchDataFromGoogleSheet() {
+    const SHEET_API_URL = "https://script.google.com/macros/s/AKfycby_V-7bWlWDYQBPxsRwdMeEYK_thNOp_ijlCB73NIm6IhvCRni7VicEHuafO_RzTIAG/exec";
 
-            let html = '<table class="history-table" style="width:100%; border-collapse: collapse; margin-top:10px;">';
-            html += '<tr style="background:#eee;"><th>Top</th><th>Người dùng</th><th>Đơn vị</th><th>Kết quả</th></tr>';
-            data.slice(0, 10).forEach((user, index) => {
-                html += `<tr>
-                    <td style="padding:5px;">${index === 0 ? '👑' : index + 1}</td>
-                    <td style="padding:5px;">${escapeHtml(user.name)}</td>
-                    <td style="padding:5px;">${escapeHtml(user.donvi)}</td>
-                    <td style="padding:5px;">${user.scoreString}</td>
-                </tr>`;
-            });
-            html += '</table>';
-            
-            const el = document.getElementById('ranking-list');
-            if (el) el.innerHTML = html;
-        })
-        .catch(err => {
-            console.log("Lỗi tải ranking:", err);
-            const el = document.getElementById('ranking-list');
-            if (el) el.innerText = "Chưa có dữ liệu online.";
-        });
-}
-
-<div id="history-section">
-    <h3>Lịch sử ôn tập gần đây</h3>
-    <div id="history-list"></div> 
-</div>
-
-<div id="ranking-section" style="margin-top: 30px; padding: 15px; border: 1px solid #ddd; border-radius: 8px;">
-    <h3>🏆 BẢNG XẾP HẠNG TOÀN ĐỘI</h3>
-    <div id="ranking-list">Đang tải dữ liệu từ máy chủ...</div>
-</div>
-
-<script>
-// 1. Chạy khi trang web tải xong
-document.addEventListener('DOMContentLoaded', function() {
-    if (typeof renderHistory === 'function') {
-        renderHistory();
-    }
-    loadOnlineRanking();
-});
-
-// 2. Hàm xếp hạng
-function loadOnlineRanking() {
-    const RANKING_URL = "https://script.google.com/macros/s/AKfycby_V-7bWlWDYQBPxsRwdMeEYK_thNOp_ijlCB73NIm6IhvCRni7VicEHuafO_RzTIAG/exec";
-    
-    fetch(RANKING_URL)
+    fetch(SHEET_API_URL)
         .then(res => res.json())
         .then(data => {
+            if (!data || data.length === 0) return;
+
+            // ---------------------------------------------------------------
+            // PHẦN 1: HIỂN THỊ "Lịch sử ôn tập"
+            // ---------------------------------------------------------------
+            let histHtml = '<table class="history-table" style="width:100%; border-collapse:collapse; text-align:center;">';
+            histHtml += '<tr style="background:#f2f2f2;"><th>Ngày thi</th><th>Người dùng</th><th>Đơn vị</th><th>Kết quả</th><th>Tỷ lệ</th><th>Thời gian</th></tr>';
+            
+            let displayData = [...data].reverse().slice(0, 15);
+            
+            displayData.forEach(item => {
+                let rawDate = item.date || "Không rõ";
+                let nameStr = item.name || "Ẩn danh";
+                let donviStr = item.donvi || "Chưa rõ";
+                let timeStr = item.timeString || "0s";
+                
+                // Lấy trực tiếp chuỗi kết quả nguyên bản (Dạng Text thuần túy) nhận được từ Google Sheet sang phần mềm
+                let scoreStr = item.scoreString ? String(item.scoreString).trim() : "0/0";
+
+                let dateDisplay = String(rawDate).includes('T') ? String(rawDate).split('T')[0] : String(rawDate);
+
+                // Đồng bộ hiển thị Tỷ lệ (%)
+                let pctDisplay = "0%";
+                if (item.pct !== undefined && item.pct !== null) {
+                    let numPct = parseFloat(item.pct);
+                    if (numPct <= 1) {
+                        pctDisplay = Math.round(numPct * 100) + "%";
+                    } else {
+                        pctDisplay = Math.round(numPct) + "%";
+                    }
+                } else {
+                    let [c, t] = scoreStr.split('/').map(Number);
+                    pctDisplay = t > 0 ? Math.round((c / t) * 100) + "%" : "0%";
+                }
+
+                histHtml += `<tr>
+                    <td style="padding:8px; border-bottom:1px solid #ddd;">${dateDisplay}</td>
+                    <td style="padding:8px; border-bottom:1px solid #ddd; text-align:left;"><b>${escapeHtml(nameStr)}</b></td>
+                    <td style="padding:8px; border-bottom:1px solid #ddd;">${escapeHtml(donviStr)}</td>
+                    <td style="padding:8px; border-bottom:1px solid #ddd; color:blue; font-weight:bold;">${scoreStr}</td>
+                    <td style="padding:8px; border-bottom:1px solid #ddd; color:green; font-weight:bold;">${pctDisplay}</td>
+                    <td style="padding:8px; border-bottom:1px solid #ddd;">⏱ ${timeStr}</td>
+                </tr>`;
+            });
+            histHtml += '</table>';
+            document.getElementById('history-list').innerHTML = histHtml;
+
+            // ---------------------------------------------------------------
+            // PHẦN 2: HIỂN THỊ "Bảng xếp hạng"
+            // ---------------------------------------------------------------
             let userMap = {};
             data.forEach(item => {
-                let [c, t] = item.scoreString ? item.scoreString.split('/').map(Number) : [0, 1];
-                if (!userMap[item.name]) userMap[item.name] = { name: item.name, donvi: item.donvi, correct: 0, total: 0 };
-                userMap[item.name].correct += (c || 0);
-                userMap[item.name].total += (t || 0);
+                let currentName = item.name;
+                if (!currentName) return; 
+
+                let scoreStr = item.scoreString ? String(item.scoreString).trim() : "0/0";
+                let [correct, total] = scoreStr.includes('/') ? scoreStr.split('/').map(Number) : [0, 0];
+                
+                if (!userMap[currentName]) {
+                    userMap[currentName] = {
+                        name: currentName,
+                        donvi: item.donvi || "Chưa rõ",
+                        examCount: 0,
+                        totalCorrect: 0,
+                        totalQuestions: 0
+                    };
+                }
+                userMap[currentName].examCount += 1;
+                userMap[currentName].totalCorrect += (correct || 0);
+                userMap[currentName].totalQuestions += (total || 0);
             });
 
-            let ranking = Object.values(userMap).map(u => ({
-                ...u, pct: u.total > 0 ? (u.correct / u.total) * 100 : 0
-            }));
-            ranking.sort((a, b) => b.pct - a.pct);
-
-            let html = '<table class="history-table" style="width:100%; border-collapse:collapse;">';
-            html += '<tr style="background:#eee;"><th>Hạng</th><th>Người dùng</th><th>Đơn vị</th><th>Tỷ lệ</th></tr>';
-            ranking.slice(0, 10).forEach((u, i) => {
-                html += `<tr><td>${i === 0 ? '👑' : i + 1}</td><td>${escapeHtml(u.name)}</td><td>${escapeHtml(u.donvi)}</td><td><b>${u.pct.toFixed(1)}%</b></td></tr>`;
+            let rankingArray = Object.values(userMap).map(u => {
+                u.finalPct = u.totalQuestions > 0 ? (u.totalCorrect / u.totalQuestions) * 100 : 0;
+                return u;
             });
-            html += '</table>';
-            
-            const el = document.getElementById('ranking-list');
-            if (el) el.innerHTML = html;
+
+            rankingArray.sort((a, b) => b.finalPct - a.finalPct);
+
+            let rankHtml = '<table class="history-table" style="width:100%; border-collapse:collapse; text-align:center;">';
+            rankHtml += '<tr style="background:#e8f5e9;"><th>Hạng</th><th>Người dùng</th><th>Số lần thi</th><th>Số câu đúng</th><th>Tổng số câu làm</th><th>Tỷ lệ đúng</th></tr>';
+
+            rankingArray.slice(0, 10).forEach((user, index) => {
+                let medal = index === 0 ? '👑 Hạng 1' : (index === 1 ? '🥈 Hạng 2' : (index === 2 ? '🥉 Hạng 3' : index + 1));
+                rankHtml += `<tr>
+                    <td style="padding:8px; border-bottom:1px solid #ddd; font-weight:bold;">${medal}</td>
+                    <td style="padding:8px; border-bottom:1px solid #ddd; text-align:left;"><b>${escapeHtml(user.name)}</b> <small style="color:#666;">(${escapeHtml(user.donvi)})</small></td>
+                    <td style="padding:8px; border-bottom:1px solid #ddd;">${user.examCount} lần</td>
+                    <td style="padding:8px; border-bottom:1px solid #ddd; color:green; font-weight:bold;">${user.totalCorrect}</td>
+                    <td style="padding:8px; border-bottom:1px solid #ddd;">${user.totalQuestions}</td>
+                    <td style="padding:8px; border-bottom:1px solid #ddd; font-size:16px; color:var(--wrong);"><b>${user.finalPct.toFixed(1)}%</b></td>
+                </tr>`;
+            });
+            rankHtml += '</table>';
+            document.getElementById('ranking-list').innerHTML = rankHtml;
+
         })
         .catch(err => {
-            console.log("Ranking error:", err);
+            console.error("Lỗi đồng bộ dữ liệu Google Sheet:", err);
+            document.getElementById('history-list').innerHTML = "<p style='text-align:center; color:red;'>⚠️ Không thể kết nối dữ liệu lịch sử trực tuyến.</p>";
+            document.getElementById('ranking-list').innerHTML = "<p style='text-align:center; color:red;'>⚠️ Không thể tính toán bảng xếp hạng trực tuyến.</p>";
         });
 }
 </script>
