@@ -353,6 +353,12 @@
 
     </style>
     <script src="questions.js"></script>
+<!-- Cấu hình PWA ứng dụng điện thoại -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="#1565c0">
+    <meta name="apple-mobile-web-app-title" content="Điều lệnh CAND">
+    <link rel="apple-touch-icon" href="icon.png">
 </head>
 <body>
 <div class="container">
@@ -400,6 +406,8 @@
     <div style="font-weight: bold; color: #004d40; font-size: 14px; margin-top: 5px; margin-bottom: 8px;">
         🎯 TIÊU CHUẨN: ≥ 5 LẦN THI/ÔN LUYỆN
     </div>
+
+
     
     <div style="border-bottom: 2px solid var(--primary); width: 100%;"></div>
 </div>
@@ -410,6 +418,24 @@
 </div>
 
     </div>
+
+<div id="chat-container" style="margin-top: 25px; background: #fafafa; padding: 15px; border-radius: 8px; border: 1px solid #ddd; text-align: left; font-family: 'Times New Roman', Times, serif;">
+            <h3 style="color: var(--primary); text-align: center; border-bottom: 2px solid var(--primary); padding-bottom: 5px; margin-top: 0; font-size: 17px; font-weight: bold; letter-spacing: 0.5px;">
+                💬 PHÒNG CHAT CHIẾN SĨ
+            </h3>
+            <p style="font-size: 13px; color: #666; font-style: italic; text-align: center; margin-top: -3px; margin-bottom: 10px;">
+                (Nơi trao đổi kinh nghiệm, thảo luận đáp án điều lệnh)
+            </p>
+
+            <div id="chat-messages" style="height: 230px; overflow-y: auto; background: #fff; border: 1px solid #ccc; border-radius: 6px; padding: 10px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);">
+                <p style="text-align: center; color: #aaa; font-style: italic; margin: auto;">🔄 Đang kết nối phòng chat...</p>
+            </div>
+
+            <div style="display: flex; gap: 6px;">
+                <input type="text" id="chat-input" placeholder="Nhập nội dung tin nhắn tại đây..." style="flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-family: 'Times New Roman', serif; font-size: 15px;" onkeypress="if(event.key === 'Enter') sendChatMessage()">
+                <button id="chat-send-btn" onclick="sendChatMessage()" style="margin: 0; padding: 10px 18px; font-size: 15px; border-radius: 6px; background: var(--correct); color: white; border: none; font-weight: bold; cursor: pointer;">GỬI</button>
+            </div>
+        </div>
 
     <div id="mode-screen" class="hidden">
         <h1>Cấu hình chế độ làm bài</h1>
@@ -1525,6 +1551,116 @@ function openDonateModal() {
 function closeDonateModal(event) {
     // Tự động đóng bảng nếu người dùng click ra vùng trống bên ngoài
     toggleDonateModal(false);
+}
+
+/* ===================================================================
+   ĐĂNG KÝ PWA - TỰ ĐỘNG KÍCH HOẠT CÀI ĐẶT LÊN ĐIỆN THOẠI
+=================================================================== */
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+            .then(reg => console.log('PWA Service Worker đã chạy thành công!', reg))
+            .catch(err => console.log('Lỗi đăng ký PWA:', err));
+    });
+}/* ===================================================================
+   CẤU HÌNH & XỬ LÝ PHÒNG CHAT REALTIME (FIREBASE COMPAT)
+=================================================================== */
+// Tự động nhúng thư viện lõi Firebase CDN dạng tương thích trực tiếp
+const firebaseScript1 = document.createElement('script');
+firebaseScript1.src = "https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js";
+document.head.appendChild(firebaseScript1);
+
+const firebaseScript2 = document.createElement('script');
+firebaseScript2.src = "https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js";
+document.head.appendChild(firebaseScript2);
+
+// Chờ thư viện nạp xong cấu trúc dữ liệu sẽ tự động kích hoạt phòng chat
+firebaseScript2.onload = function() {
+    // Thông số tài khoản thực tế của đồng chí đã được đồng bộ hóa cấu trúc web độc lập
+    const firebaseConfig = {
+        apiKey: "AIzaSyAcNx2tt_fAC6ECxnJyzkQJXz4z2fsa5oE",
+        authDomain: "luyendieulenhchat.firebaseapp.com",
+        databaseURL: "https://luyendieulenhchat-default-rtdb.firebaseio.com",
+        projectId: "luyendieulenhchat",
+        storageBucket: "luyendieulenhchat.firebasestorage.app",
+        messagingSenderId: "980104692638",
+        appId: "1:980104692638:web:3075d51f9a4430c6ea0c8f",
+        measurementId: "G-5T84W34T1S"
+    };
+
+    // Khởi động cổng kết nối dữ liệu đám mây
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+    const chatRef = database.ref('chat_messages');
+
+    // Lắng nghe dữ liệu thay đổi realtime từ trục máy chủ Firebase
+    chatRef.limitToLast(50).on('value', (snapshot) => {
+        const chatBox = document.getElementById('chat-messages');
+        chatBox.innerHTML = ''; // Làm sạch trạng thái đang tải ban đầu
+        
+        const data = snapshot.val();
+        if (!data) {
+            chatBox.innerHTML = '<p style="text-align: center; color: #aaa; font-style: italic; margin: auto;">Phòng chat trống. Hãy gửi tin nhắn đầu tiên!</p>';
+            return;
+        }
+
+        // Đọc dữ liệu đổ về từ trục thời gian thực
+        Object.values(data).forEach(msg => {
+            const msgEl = document.createElement('div');
+            msgEl.style.fontSize = '14px';
+            msgEl.style.lineHeight = '1.4';
+            msgEl.style.padding = '5px 8px';
+            msgEl.style.borderRadius = '5px';
+            msgEl.style.background = '#f5f5f5';
+            msgEl.style.borderLeft = '3px solid #ccc';
+            
+            let timeStr = "";
+            if(msg.timestamp) {
+                const d = new Date(msg.timestamp);
+                timeStr = `<small style="color:#999; margin-left:6px; font-size:11px;">${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')}</small>`;
+            }
+
+            msgEl.innerHTML = `<b style="color:var(--primary)">${escapeHtml(msg.sender)}</b> <small style="color:#555; font-weight:bold;">(${escapeHtml(msg.donvi)})</small>: <span style="color:#111;">${escapeHtml(msg.text)}</span> ${timeStr}`;
+            chatBox.appendChild(msgEl);
+        });
+
+        // Cuộn hộp thoại chat xuống dưới cùng khi có tin nhắn mới đổ về
+        chatBox.scrollTop = chatBox.scrollHeight;
+    });
+
+    // Hàm thực thi việc đóng gói dữ liệu và đẩy lên đám mây khi bấm nút Gửi
+    window.sendChatMessage = function() {
+        const inputEl = document.getElementById('chat-input');
+        const text = inputEl.value.trim();
+        if (!text) return;
+
+        // Tự động trích xuất thông tin định danh họ tên và đơn vị chiến sĩ đã đăng ký
+        const nameInput = document.getElementById('nickname').value.trim();
+        const donviInput = document.getElementById('donvi').value.trim();
+
+        if (!nameInput || !donviInput) {
+            alert("Vui lòng điền Họ tên và Đơn vị ở form phía trên trước khi tham gia phòng chat!");
+            return;
+        }
+
+        // Đẩy gói tin nhắn lên trục database
+        chatRef.push({
+            sender: nameInput,
+            donvi: donviInput,
+            text: text,
+            timestamp: Date.now()
+        }).then(() => {
+            inputEl.value = ''; // Thu dọn, làm sạch ô nhập liệu
+        }).catch(err => {
+            alert("Lỗi đường truyền tin nhắn: " + err.message);
+        });
+    };
+};
+
+// Hàm mã hóa ký tự đặc biệt phòng chống tấn công chèn mã độc (XSS) qua ô chat
+function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
 }
 </script>
 <div id="donate-modal" class="donate-modal" onclick="closeDonateModal(event)">
